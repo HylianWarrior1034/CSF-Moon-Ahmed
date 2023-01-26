@@ -9,9 +9,6 @@ all : uint256_tests
 uint256_tests : $(OBJS)
 	$(CC) -o $@ $(OBJS)
 
-uint256.o : uint256.c uint256.h
-	$(CC) $(CFLAGS) -c uint256.c
-
 clean :
 	rm -f $(OBJS) uint256_tests depend.mak
 
