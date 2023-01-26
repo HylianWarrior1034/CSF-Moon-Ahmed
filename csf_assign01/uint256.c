@@ -10,7 +10,10 @@
 UInt256 uint256_create_from_u64(uint64_t val) {
   UInt256 result;
 
-  result.data[3] = val;
+  result.data[0] = val;
+  result.data[1] = (uint64_t) 0;
+  result.data[2] = (uint64_t) 0;
+  result.data[3] = (uint64_t) 0;
   
   return result;
 }
@@ -52,7 +55,7 @@ char *uint256_format_as_hex(UInt256 val) {
 uint64_t uint256_get_bits(UInt256 val, unsigned index) {
   uint64_t bits;
 
-  bits = val[index];
+  bits = val.data[index];
   
   return bits;
 }
