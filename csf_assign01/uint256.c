@@ -9,7 +9,9 @@
 // all other bits are set to 0.
 UInt256 uint256_create_from_u64(uint64_t val) {
   UInt256 result;
-  // TODO: implement
+
+  result.data[3] = val;
+  
   return result;
 }
 
@@ -18,14 +20,21 @@ UInt256 uint256_create_from_u64(uint64_t val) {
 // at index 3 is the most significant.
 UInt256 uint256_create(const uint64_t data[4]) {
   UInt256 result;
-  // TODO: implement
+
+  result.data[0] = data[0];
+  result.data[1] = data[1];
+  result.data[2] = data[2];
+  result.data[3] = data[3];
+  
   return result;
 }
 
 // Create a UInt256 value from a string of hexadecimal digits.
 UInt256 uint256_create_from_hex(const char *hex) {
   UInt256 result;
-  // TODO: implement
+
+  
+  
   return result;
 }
 
@@ -42,7 +51,9 @@ char *uint256_format_as_hex(UInt256 val) {
 // significant 64 bits.
 uint64_t uint256_get_bits(UInt256 val, unsigned index) {
   uint64_t bits;
-  // TODO: implement
+
+  bits = val[index];
+  
   return bits;
 }
 
