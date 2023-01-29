@@ -10,8 +10,8 @@
 UInt256 uint256_create_from_u64(uint64_t val) {
   UInt256 result;
 
-  result.data[0] = val;
-  result.data[1] = (uint64_t) 0;
+  result.data[0] = val; // setting the least significant 64 bits to the given input
+  result.data[1] = (uint64_t) 0; // setting the rest of the bits to 0
   result.data[2] = (uint64_t) 0;
   result.data[3] = (uint64_t) 0;
   
@@ -24,7 +24,7 @@ UInt256 uint256_create_from_u64(uint64_t val) {
 UInt256 uint256_create(const uint64_t data[4]) {
   UInt256 result;
 
-  result.data[0] = data[0];
+  result.data[0] = data[0]; // setting every bit to its respective value from the given input
   result.data[1] = data[1];
   result.data[2] = data[2];
   result.data[3] = data[3];
@@ -55,7 +55,7 @@ char *uint256_format_as_hex(UInt256 val) {
 uint64_t uint256_get_bits(UInt256 val, unsigned index) {
   uint64_t bits;
 
-  bits = val.data[index];
+  bits = val.data[index]; // retrieving the least significant 64 bits from the given uint256 input
   
   return bits;
 }
