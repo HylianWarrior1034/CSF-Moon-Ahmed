@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "uint256.h"
 
 // Create a UInt256 value from a single uint64_t value.
@@ -35,30 +36,31 @@ UInt256 uint256_create(const uint64_t data[4]) {
 // Create a UInt256 value from a string of hexadecimal digits.
 UInt256 uint256_create_from_hex(const char *hex) {
   UInt256 result;
-  
-  int i = 0;
-  while(hex[i + 1] != '\0') {
-    i++;
-  }
-  if (i > 64) {
-    i = 64;
-  }
 
-  int fill = 64 - i-1;
-  char* new_hex = (char*) malloc(sizeof(char) * 65);
+  char* new_hex = (char*) malloc(sizeof(char) * 64);
 
-  for (int i = 0; i < fill; i++) {
+  for (int i = 0; i < (int) 64 - strlen(hex); i++) {
     new_hex[i] = '0';
   }
 
-  strcat(new_hex, hex);
+  //printf("%ld\n", strlen(new_hex));
+  //printf("%s\n", new_hex);
 
+  strcat(new_hex, hex);
+  
+  //printf("%ld\n", strlen(new_hex));
+  //printf("%s\n", new_hex);
+  
   for (int i = 0; i < 4; i++) {
-    char* temp = new_hex+(i*16);
+    char* temp = malloc(16);
+    char* cpy = new_hex;
+    strncpy(temp, cpy+(i*16), 16);
+    printf("%s\n", temp);
     char* end;
     result.data[i] = strtoul(temp, &end, 16);
+    free(temp);
   }
-
+  
   free(new_hex);
   
   return result;
