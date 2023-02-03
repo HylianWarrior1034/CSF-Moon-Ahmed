@@ -37,27 +37,22 @@ UInt256 uint256_create(const uint64_t data[4]) {
 UInt256 uint256_create_from_hex(const char *hex) {
   UInt256 result;
 
-  char* new_hex = (char*) malloc(sizeof(char) * 64);
+  char* new_hex = (char*) malloc(sizeof(char) * 65);
 
-  for (int i = 0; i < (int) 64 - strlen(hex); i++) {
+  for (int i = 0; i < (int) 64; i++) {
     new_hex[i] = '0';
   }
 
-  //printf("%ld\n", strlen(new_hex));
-  //printf("%s\n", new_hex);
-
-  strcat(new_hex, hex);
-  
-  //printf("%ld\n", strlen(new_hex));
-  //printf("%s\n", new_hex);
+  for (int i = 0; i < (int)strlen(hex); i++) {
+    new_hex[64-strlen(hex)+i] = hex[i];
+  }
   
   for (int i = 0; i < 4; i++) {
     char* temp = malloc(16);
     char* cpy = new_hex;
     strncpy(temp, cpy+(i*16), 16);
-    printf("%s\n", temp);
     char* end;
-    result.data[i] = strtoul(temp, &end, 16);
+    result.data[3-i] = strtoul(temp, &end, 16);
     free(temp);
   }
   
@@ -69,14 +64,24 @@ UInt256 uint256_create_from_hex(const char *hex) {
 // Return a dynamically-allocated string of hex digits representing the
 // given UInt256 value.
 char *uint256_format_as_hex(UInt256 val) {
-  char *hex = (char *) malloc(65 * sizeof(char));
+  char* hex = malloc(65);
+  hex += 2;
   // TODO: implement
   for (int i = 0; i < 4; i++) {
-    char temp[16]; 
-    sprintf(temp, "%016lx", (long) val.data[i]);
+    char temp[17];
+    sprintf(temp, "%016lx", val.data[i]);
     strcat(hex, temp);
   }
+  
+  while (strlen(hex) != 1) {
+    if (*hex == '0') {
+      hex++;
+    } else {
+      break;
+    }
+  }
 
+  printf("%s\n", hex);
   return hex;
 }
 
@@ -94,34 +99,41 @@ uint64_t uint256_get_bits(UInt256 val, unsigned index) {
 // Compute the sum of two UInt256 values.
 UInt256 uint256_add(UInt256 left, UInt256 right) {
   UInt256 sum;
+
+  sum.data[3] = 0;
+  sum.data[2] = 0;
+  sum.data[1] = 0;
+  sum.data[0] = 0;
+
   int carry = 0;
   for (int i = 0; i < 4; i++) {
+    int temp_sum;
     uint64_t one = uint256_get_bits(left, i);
     uint64_t two = uint256_get_bits(right, i);
-    uint64_t temp_sum = 0;
 
     for (int j = 0; j < 64; j++) {
+      
       int temp_int1 = one & 1;
-      int temp_int2 = two & 2;
+      int temp_int2 = two & 1;
+      printf("%d %d %d\n", temp_int1, temp_int2, carry);
       temp_sum = temp_int1 + temp_int2 + carry;
 
       if (temp_sum == 3) {
         carry = 1;
-        sum.data[i] |= 1UL << j;
+        sum.data[i] |= 1 << j;
       } else if (temp_sum == 2) {
         carry = 1;
-        sum.data[i] |= 0UL << j;
       } else if (temp_sum == 1) {
         carry = 0;
-        sum.data[i] |= 1UL << j;
-      } else {
-        carry = 0;
-        sum.data[i] |= 0UL << j;
+        sum.data[i] |= 1 << j;
       }
+      
+      one >>= 1;
+      two >>= 1;
     }
   }
 
-  printf("%lu %lu %lu %lu \n", sum.data[3], sum.data[2], sum.data[1], sum.data[0]);
+  printf("%lx %lx %lx %lx \n", sum.data[3], sum.data[2], sum.data[1], sum.data[0]);
   return sum;
 }
 
