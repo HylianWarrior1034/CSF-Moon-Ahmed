@@ -106,16 +106,30 @@ UInt256 uint256_add(UInt256 left, UInt256 right) {
   sum.data[0] = 0;
 
   int carry = 0;
+
   for (int i = 0; i < 4; i++) {
-    int temp_sum;
+    uint64_t temp_sum; // create empty unint64 to store the temporary sum
     uint64_t one = uint256_get_bits(left, i);
     uint64_t two = uint256_get_bits(right, i);
 
+    // adding the appropriate bits from the left and right values (as well as any bits overflowing from a previous addition)
+    temp_sum = one + two + carry;
+    // checking if an overflow occured
+    if (temp_sum < one) {
+      carry = 1;
+    } else {
+      carry = 0;
+    }
+
+    // setting corresponding bits of the overall sum to the appropiate values
+    sum.data[i] = temp_sum;
+
+    /*
     for (int j = 0; j < 64; j++) {
       
       int temp_int1 = one & 1;
       int temp_int2 = two & 1;
-      printf("%d %d %d\n", temp_int1, temp_int2, carry);
+      //printf("%d %d %d\n", temp_int1, temp_int2, carry);
       temp_sum = temp_int1 + temp_int2 + carry;
 
       if (temp_sum == 3) {
@@ -131,9 +145,10 @@ UInt256 uint256_add(UInt256 left, UInt256 right) {
       one >>= 1;
       two >>= 1;
     }
+    */
   }
 
-  printf("%lx %lx %lx %lx \n", sum.data[3], sum.data[2], sum.data[1], sum.data[0]);
+  //printf("%lx %lx %lx %lx \n", sum.data[3], sum.data[2], sum.data[1], sum.data[0]);
   return sum;
 }
 
