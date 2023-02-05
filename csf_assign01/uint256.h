@@ -39,9 +39,6 @@ uint64_t uint256_get_bits(UInt256 val, unsigned index);
 // Compute the sum of two UInt256 values.
 UInt256 uint256_add(UInt256 left, UInt256 right);
 
-// Compute the negation of a UInt256 value.
-UInt256 uint256_negate(UInt256 val);
-
 // Compute the difference of two UInt256 values.
 UInt256 uint256_sub(UInt256 left, UInt256 right);
 
@@ -49,5 +46,11 @@ UInt256 uint256_sub(UInt256 left, UInt256 right);
 UInt256 uint256_mul(UInt256 left, UInt256 right);
 
 // You may add additional functions if you would like to
+
+// Compute the negation of a UInt256 value.
+UInt256 uint256_negate(UInt256 val);
+
+// Compute the state of a UInt256 value that has been shifted left a specific number of times.
+UInt256 uint256_leftShift(UInt256 val, unsigned int shift);
 
 #endif // UINT256_H

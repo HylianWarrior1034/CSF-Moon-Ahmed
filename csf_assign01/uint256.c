@@ -150,10 +150,10 @@ UInt256 uint256_add(UInt256 left, UInt256 right) {
 UInt256 uint256_negate(UInt256 val) {
   UInt256 result;
   UInt256 one;
-  one.data[0] = 1;
-  one.data[1] = 0;
-  one.data[2] = 0;
-  one.data[3] = 0;
+  one.data[0] = 1UL;
+  one.data[1] = 0UL;
+  one.data[2] = 0UL;
+  one.data[3] = 0UL;
   for (int i = 0; i < 4; i++) {
     result.data[i] = ~(val.data[i]);
   }
@@ -173,10 +173,46 @@ UInt256 uint256_mul(UInt256 left, UInt256 right) {
   product.data[1] = 0UL;
   product.data[2] = 0UL;
   product.data[3] = 0UL;
+  uint64_t one = 1UL;
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 64; j++) {
       // check bits of left
+      if (left.data[i] & (one << j)) {
+        product = uint256_add(product, uint256_leftShift(right, (j + (i * 64))));
+      }
     }
   }
   return product;
+}
+
+// Compute the state of a UInt256 value that has been shifted left a specific number of times.
+UInt256 uint256_leftShift(UInt256 val, unsigned int shift) {
+  UInt256 result;
+  result.data[0] = val.data[0];
+  result.data[1] = val.data[1];
+  result.data[2] = val.data[2];
+  result.data[3] = val.data[3];
+  uint64_t one = 1UL;
+  for (int i = 0; i < shift; i++) {
+    for (int j = 3; j >= 0; j--) {
+      for (int k = 63; k >= 0; k--) {
+        if (j == 0 && k == 0) {
+          result.data[j] &= ~(one << 0);
+        } else if (k == 0) {
+          if (result.data[j - 1] & (one << 63)) {
+            result.data[j] |= (one << k);
+          } else {
+            result.data[j] &= ~(one << k);
+          }
+        } else {
+          if (result.data[j] & (one << (k - 1))) {
+            result.data[j] |= (one << k);
+          } else {
+            result.data[j] &= ~(one << k);
+          }
+        }
+      }
+    }
+  }
+  return result;
 }
