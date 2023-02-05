@@ -67,10 +67,12 @@ char *uint256_format_as_hex(UInt256 val) {
   char *hex = malloc(sizeof(char) * 65);
   
   sprintf(hex, "%016lx%016lx%016lx%016lx", val.data[3], val.data[2], val.data[1], val.data[0]);
-
   while (strlen(hex) != 1) {
     if (*hex == '0') {
-      hex++;
+      char *temp = malloc(sizeof(char) * (strlen(hex) + 1));
+      sprintf(temp, "%s", &hex[1]);
+      free(hex);
+      hex = temp;
     } else {
       break;
     }
