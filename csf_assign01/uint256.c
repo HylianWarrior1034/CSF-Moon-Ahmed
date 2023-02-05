@@ -152,11 +152,34 @@ UInt256 uint256_add(UInt256 left, UInt256 right) {
   return sum;
 }
 
+// Compute the negation of a UInt256 value.
+UInt256 uint256_negate(UInt256 num) {
+  UInt256 result;
+  UInt256 one256;
+  uint64_t one = 0x1UL;
+  one256.data[0] = 0x1UL;
+  one256.data[1] = 0x0UL;
+  one256.data[2] = 0x0UL;
+  one256.data[3] = 0x0UL;
+  for (int i = 0; i < 4; i++) {
+    // set every bit in the result equal to the opposite of its corresponding bit in num
+    for (int j = 0; j < 64; j++) {
+      uint64_t bit = one << j;
+      if (num.data[i] & bit) {
+        result.data[i] &= ~bit;
+      } else {
+        result.data[i] |= bit;
+      }
+    }
+  }
+  // finishing the negation by adding 1
+  result = uint256_add(result, one256);
+  return result;
+}
+
 // Compute the difference of two UInt256 values.
 UInt256 uint256_sub(UInt256 left, UInt256 right) {
-  UInt256 result;
-  // TODO: implement
-  return result;
+  return uint256_add(left, uint256_negate(right));
 }
 
 // Compute the product of two UInt256 values.

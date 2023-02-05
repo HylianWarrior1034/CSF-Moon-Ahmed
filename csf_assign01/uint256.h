@@ -39,6 +39,9 @@ uint64_t uint256_get_bits(UInt256 val, unsigned index);
 // Compute the sum of two UInt256 values.
 UInt256 uint256_add(UInt256 left, UInt256 right);
 
+// Compute the negation of a UInt256 value.
+UInt256 uint256_negate(UInt256 num);
+
 // Compute the difference of two UInt256 values.
 UInt256 uint256_sub(UInt256 left, UInt256 right);
 
