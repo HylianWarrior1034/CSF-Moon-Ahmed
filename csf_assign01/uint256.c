@@ -65,18 +65,9 @@ UInt256 uint256_create_from_hex(const char *hex) {
 // given UInt256 value.
 char *uint256_format_as_hex(UInt256 val) {
   char *hex = malloc(sizeof(char) * 65);
-  sprintf(hex, "%016llx%016llx%016llx%016llx", val.data[0], val.data[1], val.data[2], val.data[3]);
-  return hex;
-  /*
-  char* hex = malloc(65);
-  hex += 2;
-  // TODO: implement
-  for (int i = 0; i < 4; i++) {
-    char temp[17];
-    sprintf(temp, "%016lx", val.data[i]);
-    strcat(hex, temp);
-  }
   
+  sprintf(hex, "%016lx%016lx%016lx%016lx", val.data[3], val.data[2], val.data[1], val.data[0]);
+
   while (strlen(hex) != 1) {
     if (*hex == '0') {
       hex++;
@@ -84,10 +75,8 @@ char *uint256_format_as_hex(UInt256 val) {
       break;
     }
   }
-
-  printf("%s\n", hex);
+  
   return hex;
-  */
 }
 
 // Get 64 bits of data from a UInt256 value.
