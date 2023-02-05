@@ -445,7 +445,7 @@ void test_mul_overflow(TestObjs *objs) {
 
   UInt256 left, right, result;
 
-  // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff * 2 = fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd
+  // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff * 2 = fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
   
   left.data[0] = 0xffffffffffffffffUL;
   left.data[1] = 0xffffffffffffffffUL;
@@ -456,7 +456,7 @@ void test_mul_overflow(TestObjs *objs) {
   right.data[2] = 0x0UL;
   right.data[3] = 0x0UL;
   result = uint256_mul(left, right);
-  ASSERT(0xfffffffffffffffdUL == result.data[0]);
+  ASSERT(0xfffffffffffffffeUL == result.data[0]);
   ASSERT(0xffffffffffffffffUL == result.data[1]);
   ASSERT(0xffffffffffffffffUL == result.data[2]);
   ASSERT(0xffffffffffffffffUL == result.data[3]);
