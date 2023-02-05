@@ -64,6 +64,10 @@ UInt256 uint256_create_from_hex(const char *hex) {
 // Return a dynamically-allocated string of hex digits representing the
 // given UInt256 value.
 char *uint256_format_as_hex(UInt256 val) {
+  char *hex = malloc(sizeof(char) * 65);
+  sprintf(hex, "%016llx%016llx%016llx%016llx", val.data[0], val.data[1], val.data[2], val.data[3]);
+  return hex;
+  /*
   char* hex = malloc(65);
   hex += 2;
   // TODO: implement
@@ -83,6 +87,7 @@ char *uint256_format_as_hex(UInt256 val) {
 
   printf("%s\n", hex);
   return hex;
+  */
 }
 
 // Get 64 bits of data from a UInt256 value.
@@ -152,16 +157,37 @@ UInt256 uint256_add(UInt256 left, UInt256 right) {
   return sum;
 }
 
+// Compute the negation of a UInt256 value.
+UInt256 uint256_negate(UInt256 val) {
+  UInt256 result;
+  UInt256 one;
+  one.data[0] = 1;
+  one.data[1] = 0;
+  one.data[2] = 0;
+  one.data[3] = 0;
+  for (int i = 0; i < 4; i++) {
+    result.data[i] = ~(val.data[i]);
+  }
+  result = uint256_add(result, one);
+  return result;
+}
+
 // Compute the difference of two UInt256 values.
 UInt256 uint256_sub(UInt256 left, UInt256 right) {
-  UInt256 result;
-  // TODO: implement
-  return result;
+  return uint256_add(left, uint256_negate(right));
 }
 
 // Compute the product of two UInt256 values.
 UInt256 uint256_mul(UInt256 left, UInt256 right) {
   UInt256 product;
-  // TODO: implement
+  product.data[0] = 0UL;
+  product.data[1] = 0UL;
+  product.data[2] = 0UL;
+  product.data[3] = 0UL;
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 64; j++) {
+      // check bits of left
+    }
+  }
   return product;
 }
