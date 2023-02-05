@@ -162,6 +162,15 @@ UInt256 uint256_sub(UInt256 left, UInt256 right) {
 // Compute the product of two UInt256 values.
 UInt256 uint256_mul(UInt256 left, UInt256 right) {
   UInt256 product;
+  product.data[0] = 0UL;
+  product.data[1] = 0UL;
+  product.data[2] = 0UL;
+  product.data[3] = 0UL;
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 64; j++) {
+      // look at every bit of left
+    }
+  }
   // TODO: implement
   return product;
 }
