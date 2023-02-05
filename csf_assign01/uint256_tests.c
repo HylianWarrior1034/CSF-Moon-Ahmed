@@ -63,6 +63,8 @@ int main(int argc, char **argv) {
   TEST(test_sub_1);
   TEST(test_sub_2);
   TEST(test_sub_3);
+  TEST(test_sub_zero);
+  TEST(test_sub_overflow);
   TEST(test_mul_1);
   TEST(test_mul_2);
 
@@ -257,7 +259,7 @@ void test_add_overflow(TestObjs *objs) {
 
   UInt256 left, right, result;
 
-  // 9515af0631ecc4779e0c122009e87b1ff1076115dab87f8190bc8c2ceb84ceb + 0 = 9515af0631ecc4779e0c122009e87b1ff1076115dab87f8190bc8c2ceb84ceb
+  // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff + 1 = 0;
   left.data[0] = 0xffffffffffffffffUL;
   left.data[1] = 0xffffffffffffffffUL;
   left.data[2] = 0xffffffffffffffffUL;
@@ -305,6 +307,7 @@ void test_sub_2(TestObjs *objs) {
   right.data[2] = 0x0UL;
   right.data[3] = 0x0UL;
   result = uint256_sub(left, right);
+  printf("%lx %lx %lx %lx \n", result.data[0], result.data[1], result.data[2], result.data[3]);
   ASSERT(0x8f17c46404746406UL == result.data[0]);
   ASSERT(0x4b05b325b88987cUL == result.data[1]);
   ASSERT(0x0UL == result.data[2]);
@@ -332,6 +335,52 @@ void test_sub_3(TestObjs *objs) {
   ASSERT(0x0e4243bc3913ceafUL == result.data[1]);
   ASSERT(0xef77ed83d884f494UL == result.data[2]);
   ASSERT(0x4a4b72ebb654226UL == result.data[3]);
+}
+
+void test_sub_zero(TestObjs *objs) {
+  // subtract zero from value
+
+  (void) objs;
+
+  UInt256 left, right, result;
+
+  // bc556287a225313cc07a1509f4ebb335034f5d413945ac7d0bdb42962a6ae8c - 0 = bc556287a225313cc07a1509f4ebb335034f5d413945ac7d0bdb42962a6ae8c
+  left.data[0] = 0xd0bdb42962a6ae8cUL;
+  left.data[1] = 0x5034f5d413945ac7UL;
+  left.data[2] = 0xcc07a1509f4ebb33UL;
+  left.data[3] = 0xbc556287a225313UL;
+  right.data[0] = 0x0UL;
+  right.data[1] = 0x0UL;
+  right.data[2] = 0x0UL;
+  right.data[3] = 0x0UL;
+  result = uint256_sub(left, right);
+  ASSERT(0xd0bdb42962a6ae8cUL == result.data[0]);
+  ASSERT(0x5034f5d413945ac7UL == result.data[1]);
+  ASSERT(0xcc07a1509f4ebb33UL == result.data[2]);
+  ASSERT(0xbc556287a225313UL == result.data[3]);
+}
+
+void test_sub_overflow(TestObjs *objs) {
+  // subtract 1 from 0
+
+  (void) objs;
+
+  UInt256 left, right, result;
+
+  // 0 - 1 = ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+  left.data[0] = 0x0UL;
+  left.data[1] = 0x0UL;
+  left.data[2] = 0x0UL;
+  left.data[3] = 0x0UL;
+  right.data[0] = 0x1UL;
+  right.data[1] = 0x0UL;
+  right.data[2] = 0x0UL;
+  right.data[3] = 0x0UL;
+  result = uint256_sub(left, right);
+  ASSERT(0xffffffffffffffffUL == result.data[0]);
+  ASSERT(0xffffffffffffffffUL == result.data[1]);
+  ASSERT(0xffffffffffffffffUL == result.data[2]);
+  ASSERT(0xffffffffffffffffUL == result.data[3]);
 }
 
 void test_mul_1(TestObjs *objs) {
