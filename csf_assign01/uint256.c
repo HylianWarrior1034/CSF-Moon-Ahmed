@@ -111,7 +111,7 @@ UInt256 uint256_add(UInt256 left, UInt256 right) {
     // adding the appropriate bits from the left and right values (as well as any bits overflowing from a previous addition)
     temp_sum = one + two + carry;
     // checking if an overflow occured
-    if (temp_sum < one) {
+    if (temp_sum < one || temp_sum < two) {
       carry = 1;
     } else {
       carry = 0;
