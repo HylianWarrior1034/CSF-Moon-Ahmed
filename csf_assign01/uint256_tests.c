@@ -67,6 +67,8 @@ int main(int argc, char **argv) {
   TEST(test_sub_overflow);
   TEST(test_mul_1);
   TEST(test_mul_2);
+  TEST(test_mul_zero);
+  TEST(test_mul_overflow);
 
   TEST_FINI();
 }
@@ -307,7 +309,7 @@ void test_sub_2(TestObjs *objs) {
   right.data[2] = 0x0UL;
   right.data[3] = 0x0UL;
   result = uint256_sub(left, right);
-  printf("%lx %lx %lx %lx \n", result.data[0], result.data[1], result.data[2], result.data[3]);
+  //printf("%lx %lx %lx %lx \n", result.data[0], result.data[1], result.data[2], result.data[3]);
   ASSERT(0x8f17c46404746406UL == result.data[0]);
   ASSERT(0x4b05b325b88987cUL == result.data[1]);
   ASSERT(0x0UL == result.data[2]);
@@ -414,4 +416,48 @@ void test_mul_2(TestObjs *objs) {
   ASSERT(0xe6117fa57cddf52eUL == result.data[1]);
   ASSERT(0x61abad710163aa9bUL == result.data[2]);
   ASSERT(0x991f2125eacd3UL == result.data[3]);
+}
+
+void test_mul_zero(TestObjs *objs) {
+  (void) objs;
+
+  UInt256 left, right, result;
+
+  // 761544a98b82abc63f23766d1391782 * 0 = 0
+  
+  left.data[0] = 0x63f23766d1391782UL;
+  left.data[1] = 0x761544a98b82abcUL;
+  left.data[2] = 0x0UL;
+  left.data[3] = 0x0UL;
+  right.data[0] = 0x0UL;
+  right.data[1] = 0x0UL;
+  right.data[2] = 0x0UL;
+  right.data[3] = 0x0UL;
+  result = uint256_mul(left, right);
+  ASSERT(0x0UL == result.data[0]);
+  ASSERT(0x0UL == result.data[1]);
+  ASSERT(0x0UL == result.data[2]);
+  ASSERT(0x0UL == result.data[3]);
+}
+
+void test_mul_overflow(TestObjs *objs) {
+  (void) objs;
+
+  UInt256 left, right, result;
+
+  // ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff * 2 = fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd
+  
+  left.data[0] = 0xffffffffffffffffUL;
+  left.data[1] = 0xffffffffffffffffUL;
+  left.data[2] = 0xffffffffffffffffUL;
+  left.data[3] = 0xffffffffffffffffUL;
+  right.data[0] = 0x2UL;
+  right.data[1] = 0x0UL;
+  right.data[2] = 0x0UL;
+  right.data[3] = 0x0UL;
+  result = uint256_mul(left, right);
+  ASSERT(0xfffffffffffffffdUL == result.data[0]);
+  ASSERT(0xffffffffffffffffUL == result.data[1]);
+  ASSERT(0xffffffffffffffffUL == result.data[2]);
+  ASSERT(0xffffffffffffffffUL == result.data[3]);
 }
