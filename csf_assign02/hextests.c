@@ -60,8 +60,8 @@ void testFormatOffset(TestObjs *objs)
   hex_format_offset(0xabcd1234u, buf);
   ASSERT(0 == strcmp(buf, "abcd1234"));
 
-  hex_format_offset(16, buf);
-  ASSERT(0 == strcmp(buf, "0000010"));
+  hex_format_offset(16u, buf);
+  ASSERT(0 == strcmp(buf, "00000010"));
 }
 
 void testFormatByteAsHex(TestObjs *objs)
