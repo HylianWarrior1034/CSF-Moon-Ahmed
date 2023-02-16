@@ -54,7 +54,9 @@ void hex_format_byte_as_hex(unsigned char byteval, char sbuf[])
 {
     unsigned byteval_temp = byteval;
     unsigned temp;
-    sbuf = "00\0";
+    sbuf[0] = '0';
+    sbuf[1] = '0';
+    sbuf[2] = '\0';
     int j = 1;
     while (byteval_temp != 0)
     {
