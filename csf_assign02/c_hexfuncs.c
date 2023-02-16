@@ -16,7 +16,7 @@ unsigned hex_read(char data_buf[])
 // Write given nul-terminated string to standard output.
 void hex_write_string(const char s[])
 {
-    write(1, s, 8);
+    write(1, s, 16);
 }
 
 // Format an unsigned value as an offset string consisting of exactly 8
