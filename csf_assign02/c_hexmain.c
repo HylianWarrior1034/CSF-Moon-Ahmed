@@ -5,5 +5,9 @@
 int main(void)
 {
   // TODO: implement the main function
-  int offset = 0;
+  unsigned offset = 0;
+  char data_buf[17];
+  while (hex_read(data_buf) > 0)
+  {
+  }
 }

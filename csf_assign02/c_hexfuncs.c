@@ -9,14 +9,14 @@
 unsigned hex_read(char data_buf[])
 {
     unsigned nread;
-    nread = read(0, data_buf, 16);
+    nread = (unsigned)read(0, data_buf, 16);
     return nread;
 }
 
 // Write given nul-terminated string to standard output.
 void hex_write_string(const char s[])
 {
-    write(1, s, 16);
+    write(1, s, sizeof(s));
 }
 
 // Format an unsigned value as an offset string consisting of exactly 8
@@ -24,6 +24,20 @@ void hex_write_string(const char s[])
 // have enough room for a string of length 8.
 void hex_format_offset(unsigned offset, char sbuf[])
 {
+    char *temp = "0123456789abcdef" while (offset > 0)
+    {
+        int j = 0;
+        int sum = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (offset & 1 == 1)
+            {
+                sum += 2 * *
+            }
+            offset >>= 1;
+        }
+        sbuf[7 - j] = temp[sum]
+    }
 }
 
 // Format a byte value (in the range 0-255) as string consisting
