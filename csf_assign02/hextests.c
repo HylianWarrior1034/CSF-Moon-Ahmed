@@ -8,19 +8,22 @@
 #include "hexfuncs.h"
 
 // test fixture object
-typedef struct {
+typedef struct
+{
   char test_data_1[16];
 } TestObjs;
 
 // setup function (to create the test fixture)
-TestObjs *setup(void) {
+TestObjs *setup(void)
+{
   TestObjs *objs = malloc(sizeof(TestObjs));
   strcpy(objs->test_data_1, "Hello, world!\n");
   return objs;
 }
 
 // cleanup function (to destroy the test fixture)
-void cleanup(TestObjs *objs) {
+void cleanup(TestObjs *objs)
+{
   free(objs);
 }
 
@@ -29,8 +32,10 @@ void testFormatOffset(TestObjs *objs);
 void testFormatByteAsHex(TestObjs *objs);
 void testHexToPrintable(TestObjs *objs);
 
-int main(int argc, char **argv) {
-  if (argc > 1) {
+int main(int argc, char **argv)
+{
+  if (argc > 1)
+  {
     tctest_testname_to_execute = argv[1];
   }
 
@@ -45,23 +50,29 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void testFormatOffset(TestObjs *objs) {
-  (void) objs; // suppress warning about unused parameter
+void testFormatOffset(TestObjs *objs)
+{
+  (void)objs; // suppress warning about unused parameter
   char buf[16];
   hex_format_offset(0x00000001u, buf);
   ASSERT(0 == strcmp(buf, "00000001"));
 
   hex_format_offset(0xabcd1234u, buf);
   ASSERT(0 == strcmp(buf, "abcd1234"));
+
+  hex_format_offset(16, buf);
+  ASSERT(0 == strcmp(buf, "0000010"));
 }
 
-void testFormatByteAsHex(TestObjs *objs) {
+void testFormatByteAsHex(TestObjs *objs)
+{
   char buf[16];
   hex_format_byte_as_hex(objs->test_data_1[0], buf);
   ASSERT(0 == strcmp(buf, "48"));
 }
 
-void testHexToPrintable(TestObjs *objs) {
+void testHexToPrintable(TestObjs *objs)
+{
   ASSERT('H' == hex_to_printable(objs->test_data_1[0]));
   ASSERT('.' == hex_to_printable(objs->test_data_1[13]));
 }
