@@ -16,7 +16,7 @@ unsigned hex_read(char data_buf[])
 // Write given nul-terminated string to standard output.
 void hex_write_string(const char s[])
 {
-    write(1, s, sizeof(s));
+    write(1, s, sizeof(s) - 1);
 }
 
 // Format an unsigned value as an offset string consisting of exactly 8
@@ -24,26 +24,53 @@ void hex_write_string(const char s[])
 // have enough room for a string of length 8.
 void hex_format_offset(unsigned offset, char sbuf[])
 {
-    char *temp = "0123456789abcdef" while (offset > 0)
+    for (int i = 0; i < 8; i++)
     {
-        int j = 0;
-        int sum = 0;
-        for (int i = 0; i < 4; i++)
-        {
-            if (offset & 1 == 1)
-            {
-                sum += 2 * *
-            }
-            offset >>= 1;
-        }
-        sbuf[7 - j] = temp[sum]
+        sbuf[i] = '0';
     }
+    unsigned temp;
+    int j = 7;
+    while (offset != 0)
+    {
+        temp = offset % 16;
+        if (temp < 10)
+        {
+            temp += 48;
+        }
+        else
+        {
+            temp += 87;
+        }
+        sbuf[j] = temp;
+        j--;
+        offset /= 16;
+    }
+    sbuf[8] = '\0';
 }
 
 // Format a byte value (in the range 0-255) as string consisting
 // of two hex digits.  The string is stored in sbuf.
 void hex_format_byte_as_hex(unsigned char byteval, char sbuf[])
 {
+    unsigned byteval_temp = byteval;
+    unsigned temp;
+    sbuf = "00\0";
+    int j = 1;
+    while (byteval_temp != 0)
+    {
+        temp = byteval_temp % 16;
+        if (temp < 10)
+        {
+            temp += 48;
+        }
+        else
+        {
+            temp += 87;
+        }
+        sbuf[j] = temp;
+        j--;
+        byteval_temp /= 16;
+    }
 }
 // Convert a byte value (in the range 0-255) to a printable character
 // value.  If byteval is already a printable character, it is returned
