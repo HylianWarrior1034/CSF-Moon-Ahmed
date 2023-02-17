@@ -76,7 +76,7 @@ void hex_format_byte_as_hex(unsigned char byteval, char sbuf[])
         }
         sbuf[j] = temp;
         j--;
-        byteval_temp >>= 16;
+        byteval_temp >>= 4;
     }
 }
 // Convert a byte value (in the range 0-255) to a printable character
