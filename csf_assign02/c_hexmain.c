@@ -25,7 +25,6 @@ int main(void)
       hex_write_string(space);
     }
     hex_write_string(space);
-    hex_write_string(data_buf);
     hex_write_string(newline);
     nread = hex_read(data_buf);
     offset += 16;
