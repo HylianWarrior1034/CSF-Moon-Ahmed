@@ -9,14 +9,19 @@
 unsigned hex_read(char data_buf[])
 {
     unsigned nread;
-    nread = (unsigned)read(0, data_buf, 16);
-    return nread;
+    nread = (unsigned)read(0, data_buf, 16); // read and copy up to 16 bytes from stdin
+    return nread;                            // return number of bytes read
 }
 
 // Write given nul-terminated string to standard output.
 void hex_write_string(const char s[])
 {
-    write(1, s, 16);
+    int length = 0;
+    while (s[length] != '\0') // find total length of s
+    {
+        length++;
+    }
+    write(1, s, length); // write s to stdout
 }
 
 // Format an unsigned value as an offset string consisting of exactly 8
@@ -26,7 +31,7 @@ void hex_format_offset(unsigned offset, char sbuf[])
 {
     for (int i = 0; i < 8; i++)
     {
-        sbuf[i] = '0';
+        sbuf[i] = '0'; // fill sbuf with '0'
     }
     unsigned temp;
     int j = 7;
@@ -41,11 +46,11 @@ void hex_format_offset(unsigned offset, char sbuf[])
         {
             temp += 87;
         }
-        sbuf[j] = temp;
+        sbuf[j] = temp; // fill in the string starting from the rightmost value
         j--;
-        offset /= 16;
+        offset >> 4; // divide by 16
     }
-    sbuf[8] = '\0';
+    sbuf[8] = '\0'; // null terminate
 }
 
 // Format a byte value (in the range 0-255) as string consisting
@@ -82,8 +87,8 @@ char hex_to_printable(unsigned char byteval)
 {
     if (byteval < 32 || byteval > 126)
     {
-        return 46;
+        return 46; // return unsigned char value for '.'
     }
 
-    return byteval;
+    return byteval; // return bytevalue
 }
