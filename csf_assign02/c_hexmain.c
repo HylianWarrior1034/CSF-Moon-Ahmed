@@ -9,7 +9,7 @@ int main(void)
   char offset2[16];
   char asciival[3];
   char space[2] = {' ', '\0'};
-  char newline[2] = {'\n', '\0'};
+  char newline[3] = {' ', '\n', '\0'};
   char colon[3] = {':', ' ', '\0'};
   unsigned nread = hex_read(data_buf);
   while (nread > 0)
