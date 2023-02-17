@@ -8,6 +8,8 @@ int main(void)
   char data_buf[17];
   char offset2[16];
   char asciival[3];
+  char space[2] = {' ', '\0'};
+  char newline[2] = {'\n', '\0'};
   unsigned nread = hex_read(data_buf);
   while (nread > 0)
   {
@@ -19,9 +21,9 @@ int main(void)
     {
       hex_format_byte_as_hex(data_buf[i], asciival);
       hex_write_string(asciival);
-      hex_write_string(' ');
+      hex_write_string(space);
     }
-    hex_write_string(' ');
+    hex_write_string(space);
     hex_write_string(data_buf);
     hex_write_string('\n');
     nread = hex_read(data_buf);
