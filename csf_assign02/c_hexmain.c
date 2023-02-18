@@ -4,15 +4,27 @@
 
 int main(void)
 {
+
+  // number of read bytes
   unsigned offset = 0;
-  char data_buf[17];
+
+  // char array to store the input stream
+  char data_buf[19];
+
+  // char array to store the offset hex value
   char offset2[16];
+
+  // char array to store the unsigned char value of characters
   char asciival[3];
+
+  // char arrays for formatting
   char space[2] = {' ', '\0'};
-  char newline[3] = {' ', '\n', '\0'};
   char colon[3] = {':', ' ', '\0'};
+
+  // read the data stream, nread is the number of bytes read
   unsigned nread = hex_read(data_buf);
-  data_buf[16] = '\0';
+
+  // read from stdin until nothing is being read (reached the end)
   while (nread > 0)
   {
     hex_format_offset(offset, offset2);
@@ -34,11 +46,14 @@ int main(void)
         hex_write_string(space);
       }
     }
+
     hex_write_string(space);
+    // null terminator, space, and newline for data_buf
+    data_buf[16] = ' ';
+    data_buf[17] = '\n';
+    data_buf[18] = '\0';
     hex_write_string(data_buf);
-    hex_write_string(newline);
     nread = hex_read(data_buf);
-    data_buf[16] = '\0';
     offset += 16;
   }
 }
