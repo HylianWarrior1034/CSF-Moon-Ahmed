@@ -67,7 +67,22 @@ hex_format_byte_as_hex:
 
 	.globl hex_to_printable
 hex_to_printable:
-	/* TODO: implement */
+	pushq %r12
+
+	movq %rdi, %r12
+
+	cmp $32, %r12
+	jl .ConvertToPeriod
+	cmp $126, %r12
+	jg .ConvertToPeriod
+	
+	movq %r12, %rax
+	popq %r12
+	ret
+	
+.ConvertToPeriod:
+	movq $46, %rax
+	popq %r12
 	ret
 
 /* vim:ft=gas:
