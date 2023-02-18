@@ -38,7 +38,7 @@ int main(void)
     hex_write_string(data_buf);
     hex_write_string(newline);
     nread = hex_read(data_buf);
-    data_buf[17] = '\0';
+    data_buf[16] = '\0';
     offset += 16;
   }
 }
