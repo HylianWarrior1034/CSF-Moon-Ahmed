@@ -25,48 +25,45 @@ hex_format_offset:
 
 	.globl hex_format_byte_as_hex
 hex_format_byte_as_hex:
-	push %rbp
-	movl %rsp, %rbp
+	pushq %r12
+	pushq %r13
+	pushq %r14
+	
+	movq %rdi, %r12
+	movq $2, %r13
+	
+	movb $0, (%rsi,%r13,1)
+	decq %r13
+	jmp .FormatByteLoop
 
-	push %rsi
-	push %rdi
-	push %rbx
+.FormatByteLoop:
+	cmp $0, %r12 
+	jl .FormatByteFinish
+	jg .FormatByteFinish
+	
+	movq $0, %rdx
+	movq %r12, %rax
+	movq $16, %r14
+	divq %r14
 
-	subl 8, %rsp
-	movl 8(%rbp), %rbx
-	subl 24, %rsp
-	movl 16(%rbp), %rdi
-	movl '0', (%rdi,0)
-	movl '0', (%rdi,1,8)
-	movl '\0', (%rdi,2,8)
-	push %r8
-	movl 1, %r8
+	cmp $10, %rdx
+	jge .RemainderNotLessThanTen
+	addq $48, %rdx
+	jmp .RemainderIfEnd
 
+.RemainderNotLessThanTen:
+	addq $87, %rdx
 
-	.LoopTop:
-		cmpl 0, %rbx
-		je .LoopDone
-		movl %rbx, %rdx
-		movl 0, %rax
-		divq 16
-		movl %rdx, %rbx
+.RemainderIfEnd:
+	movb %dl, (%rsi,%r13,1)
+	decq %r13
+	shr $4, %r12
+	jmp .FormatByteLoop
 
-		cmpl 10, %rdx
-		jge .GreaterThanTen
-		add 48, %rdx
-		jmp .EndIf
-		.GreaterThanTen:
-		add 87, %rdx
-		.EndIf:
-		movl %rdx, (%rdi,%r8,8)
-		decq %r8
-		jmp .LoopTop
-	.LoopDone:
-
-	subl 32, %rsp
-	pop %rbx
-	pop %rdi
-	pop %rsi
+.FormatByteFinish:
+	popq %r12
+	popq %r13
+	popq %r14
 	ret
 
 	.globl hex_to_printable
