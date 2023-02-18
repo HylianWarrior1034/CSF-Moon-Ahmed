@@ -64,15 +64,51 @@ void testFormatOffset(TestObjs *objs)
   ASSERT(0 == strcmp(buf, "00000010"));
 }
 
+void testFormatOffsetSpecial(TestObjs *objs)
+{
+  (void)objs; // suppress warning about unused parameter
+  char buf[16];
+  hex_format_offset(0x00000000u, buf);
+  ASSERT(0 == strcmp(buf, "00000000"));
+
+  hex_format_offset(0u, buf);
+  ASSERT(0 == strcmp(buf, "00000000"));
+
+  hex_format_offset(0xffffffffu, buf);
+  ASSERT(0 == strcmp(buf, "ffffffff"));
+}
+
 void testFormatByteAsHex(TestObjs *objs)
 {
   char buf[16];
   hex_format_byte_as_hex(objs->test_data_1[0], buf);
   ASSERT(0 == strcmp(buf, "48"));
+
+  hex_format_byte_as_hex('e', buf);
+  ASSERT(0 == strcmp(buf, "101"));
+}
+
+void testFormatByteAsHexSpecial(TestObjs *objs)
+{
+  char buf[16];
+  hex_format_byte_as_hex(' ', buf);
+  ASSERT(0 == strcmp(buf, "32"));
+
+  hex_format_byte_as_hex('!', buf);
+  ASSERT(0 == strcmp(buf, "33"));
+
+  hex_format_byte_as_hex(']', buf);
+  ASSERT(0 == strcmp(buf, "93"));
 }
 
 void testHexToPrintable(TestObjs *objs)
 {
   ASSERT('H' == hex_to_printable(objs->test_data_1[0]));
+  ASSERT('e' == hex_to_printable(objs->test_data_1[1]));
+}
+
+void testHexToPrintableSpecial(TestObjs *objs)
+{
   ASSERT('.' == hex_to_printable(objs->test_data_1[13]));
+  ASSERT('.' == hex_to_printable('/n'));
 }
