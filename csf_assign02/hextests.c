@@ -29,8 +29,11 @@ void cleanup(TestObjs *objs)
 
 // Prototypes for test functions
 void testFormatOffset(TestObjs *objs);
+void testFormatOffsetSpecial(TestObjs *objs);
 void testFormatByteAsHex(TestObjs *objs);
+void testFormatByteAsHexSpecial(TestObjs *objs);
 void testHexToPrintable(TestObjs *objs);
+void testHexToPrintableSpecial(TestObjs *objs);
 
 int main(int argc, char **argv)
 {
