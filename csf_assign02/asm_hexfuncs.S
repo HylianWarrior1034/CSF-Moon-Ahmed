@@ -33,9 +33,13 @@ hex_format_byte_as_hex:
 	/* Move the first parameter into %r12. */
 	movq %rdi, %r12
 	/* Assign a value to %r13 to use it as an index for the char array. */
-	movq $2, %r13
+	movq $0, %r13
 	
 	/* Put null terminator at the end of the char array and decrement our index. */
+	movb $48, (%rsi,%r13,1)
+	movq $1, %r13
+	movb $48, (%rsi,%r13,1)
+	movq $2, %r13
 	movb $0, (%rsi,%r13,1)
 	decq %r13
 	/* Start a while loop. */
