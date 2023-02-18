@@ -12,6 +12,7 @@ int main(void)
   char newline[3] = {' ', '\n', '\0'};
   char colon[3] = {':', ' ', '\0'};
   unsigned nread = hex_read(data_buf);
+  data_buf[17] = '\0';
   while (nread > 0)
   {
     hex_format_offset(offset, offset2);
@@ -37,6 +38,7 @@ int main(void)
     hex_write_string(data_buf);
     hex_write_string(newline);
     nread = hex_read(data_buf);
+    data_buf[17] = '\0';
     offset += 16;
   }
 }
