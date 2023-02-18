@@ -20,11 +20,19 @@ int main(void)
 
     for (int i = 0; i < nread; i++)
     {
-      hex_format_byte_as_hex(data_buf[i], asciival);
-      hex_write_string(asciival);
-      hex_write_string(space);
+      if (i < nread)
+      {
+        hex_format_byte_as_hex(data_buf[i], asciival);
+        hex_write_string(asciival);
+        hex_write_string(space);
+      }
+      else
+      {
+        hex_write_string(space);
+        hex_write_string(space);
+        hex_write_string(space);
+      }
     }
-    hex_write_string(space);
     hex_write_string(space);
     hex_write_string(data_buf);
     hex_write_string(newline);
