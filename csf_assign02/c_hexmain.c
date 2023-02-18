@@ -21,12 +21,17 @@ int main(void)
   char space[2] = {' ', '\0'};
   char colon[3] = {':', ' ', '\0'};
 
-  // read the data stream, nread is the number of bytes read
-  unsigned nread = hex_read(data_buf);
-
   // read from stdin until nothing is being read (reached the end)
-  while (nread > 0)
+  while (1)
   {
+    // read the data stream, nread is the number of bytes read
+    unsigned nread = hex_read(data_buf);
+
+    if (nread == 0)
+    {
+      break;
+    }
+
     hex_format_offset(offset, offset2);
     hex_write_string(offset2);
     hex_write_string(colon);
@@ -49,11 +54,10 @@ int main(void)
 
     hex_write_string(space);
     // null terminator, space, and newline for data_buf
-    data_buf[16] = ' ';
-    data_buf[17] = '\n';
-    data_buf[18] = '\0';
+    data_buf[nread] = ' ';
+    data_buf[nread + 1] = '\n';
+    data_buf[nread + 2] = '\0';
     hex_write_string(data_buf);
-    nread = hex_read(data_buf);
     offset += 16;
   }
 }
