@@ -111,10 +111,10 @@ void testHexToPrintable(TestObjs *objs)
 {
   ASSERT('H' == hex_to_printable(objs->test_data_1[0]));
   ASSERT('e' == hex_to_printable(objs->test_data_1[1]));
+  ASSERT('l' == hex_to_printable(objs->test_data_1[2]));
 }
 
 void testHexToPrintableSpecial(TestObjs *objs)
 {
   ASSERT('.' == hex_to_printable(objs->test_data_1[13]));
-  ASSERT('.' == hex_to_printable((unsigned char)'/n'));
 }
