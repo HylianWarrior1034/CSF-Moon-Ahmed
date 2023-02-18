@@ -53,10 +53,14 @@ int main(void)
     }
 
     hex_write_string(space);
-    // null terminator, space, and newline for data_buf
-    data_buf[nread] = ' ';
-    data_buf[nread + 1] = '\n';
-    data_buf[nread + 2] = '\0';
+
+    for (int i = 0; i < nread; i++) {
+      data_buf[i] = hex_to_printable(data_buf[i]);
+    }
+
+    // null terminator and newline for data_buf
+    data_buf[nread] = '\n';
+    data_buf[nread + 1] = '\0';
     hex_write_string(data_buf);
     offset += 16;
   }
