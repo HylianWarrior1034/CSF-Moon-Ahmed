@@ -42,8 +42,11 @@ int main(int argc, char **argv)
   TEST_INIT();
 
   TEST(testFormatOffset);
+  TEST(testFormatOffsetSpecial);
   TEST(testFormatByteAsHex);
+  TEST(testFormatByteAsHexSpecial);
   TEST(testHexToPrintable);
+  TEST(testHexToPrintableSpecial);
 
   TEST_FINI();
 
@@ -85,20 +88,20 @@ void testFormatByteAsHex(TestObjs *objs)
   ASSERT(0 == strcmp(buf, "48"));
 
   hex_format_byte_as_hex('e', buf);
-  ASSERT(0 == strcmp(buf, "101"));
+  ASSERT(0 == strcmp(buf, "65"));
 }
 
 void testFormatByteAsHexSpecial(TestObjs *objs)
 {
   char buf[16];
   hex_format_byte_as_hex(' ', buf);
-  ASSERT(0 == strcmp(buf, "32"));
+  ASSERT(0 == strcmp(buf, "20"));
 
   hex_format_byte_as_hex('!', buf);
-  ASSERT(0 == strcmp(buf, "33"));
+  ASSERT(0 == strcmp(buf, "21"));
 
   hex_format_byte_as_hex(']', buf);
-  ASSERT(0 == strcmp(buf, "93"));
+  ASSERT(0 == strcmp(buf, "5D"));
 }
 
 void testHexToPrintable(TestObjs *objs)
