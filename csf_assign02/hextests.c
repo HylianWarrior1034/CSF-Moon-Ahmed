@@ -104,7 +104,7 @@ void testFormatByteAsHexSpecial(TestObjs *objs)
   ASSERT(0 == strcmp(buf, "21"));
 
   hex_format_byte_as_hex(']', buf);
-  ASSERT(0 == strcmp(buf, "5D"));
+  ASSERT(0 == strcmp(buf, "5d"));
 }
 
 void testHexToPrintable(TestObjs *objs)
@@ -116,5 +116,5 @@ void testHexToPrintable(TestObjs *objs)
 void testHexToPrintableSpecial(TestObjs *objs)
 {
   ASSERT('.' == hex_to_printable(objs->test_data_1[13]));
-  ASSERT('.' == hex_to_printable('/n'));
+  ASSERT('.' == hex_to_printable((unsigned char)'/n'));
 }
