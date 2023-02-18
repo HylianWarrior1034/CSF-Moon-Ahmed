@@ -18,7 +18,7 @@ int main(void)
     hex_write_string(offset2);
     hex_write_string(colon);
 
-    for (int i = 0; i < nread; i++)
+    for (int i = 0; i < 16; i++)
     {
       if (i < nread)
       {
