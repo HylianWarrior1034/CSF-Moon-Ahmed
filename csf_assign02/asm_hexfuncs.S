@@ -38,8 +38,7 @@ hex_format_byte_as_hex:
 
 .FormatByteLoop:
 	cmp $0, %r12 
-	jl .FormatByteFinish
-	jg .FormatByteFinish
+	je .FormatByteFinish
 	
 	movq $0, %rdx
 	movq %r12, %rax
@@ -61,9 +60,9 @@ hex_format_byte_as_hex:
 	jmp .FormatByteLoop
 
 .FormatByteFinish:
-	popq %r12
-	popq %r13
 	popq %r14
+	popq %r13
+	popq %r12
 	ret
 
 	.globl hex_to_printable
