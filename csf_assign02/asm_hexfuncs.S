@@ -13,7 +13,7 @@ hex_read:
 	/* TODO: implement */
 	pushq %r12
 	movq %rdi, %r12
-	movq $0, %rdi
+	movl $0, %edi
 	movq %r12, %rsi
 	movq $16, %rdx
 	call read
@@ -34,7 +34,7 @@ hex_write_string:
 
 .writeString:
 	movq %rdi, %rsi
-	movq $1, %rdi
+	movl $1, %edi		
 	movq %r12, %rdx
 	call write
 	popq %r12
