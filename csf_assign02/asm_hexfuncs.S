@@ -11,18 +11,79 @@
 	.globl hex_read
 hex_read:
 	/* TODO: implement */
+	pushq %r12
+	movq %rdi, %r12
+	movq $0, %rdi
+	movq %r12, %rsi
+	movq $16, %rdx
+	call read
+	popq %r12
 	ret
 
 	.globl hex_write_string
 hex_write_string:
 	/* TODO: implement */
-	ret
+	pushq %r12
+	movq $0, %r12
+	
+.lengthLoop:
+	cmpq $0, (%rdi, %r12, 1)
+	jle .writeString
+	addq $1, %r12
+	jmp .lengthLoop
 
+.writeString:
+	movq %rdi, %rsi
+	movq $1, %rdi
+	movq %r12, %rdx
+	call write
+	popq %r12
+	ret
+	
 	.globl hex_format_offset
+
 hex_format_offset:
 	/* TODO: implement */
-	ret
+	pushq %r14 	/* store result of division */
+	movq $0, %r10   /* starting counter to fill sbuf with 0's */
+	movq $7, %r11	/* counter counting down to fill sbuf */
 
+.fillZero:
+	cmpq $8, %r10
+	jge .fillChar
+	movq $48, (%rsi, %r10, 1)
+	addq $1, %r10
+	jmp .fillZero
+
+.fillChar:
+	cmpq $0, %rdi
+	jbe .finishFormat
+	movq %rdi, %rax
+	movq $0, %rdx
+	movq $16, %r14
+	divq %r14
+
+	cmpq $10, %rdx
+	jb   .remLessThanTen
+	addq $87, %rdx
+	movb %dl, (%rsi, %r11, 1)
+	subq $1, %r11
+	shr $4, %rdi
+	jmp .fillChar
+	
+.remLessThanTen: 
+	addq $48, %rdx
+	movb %dl, (%rsi, %r11, 1)
+	subq $1, %r11
+	shr $4, %rdi
+	jmp .fillChar
+	
+.finishFormat:
+	movq $8, %r11
+	movb $0, (%rsi, %r11, 1)
+	popq %r14
+	ret
+	
 	.globl hex_format_byte_as_hex
 hex_format_byte_as_hex:
 	/* Saving the contents of the callee registers that we'll be using in this function. */
