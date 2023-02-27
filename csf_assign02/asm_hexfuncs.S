@@ -27,21 +27,20 @@ hex_write_string:
 	movq $0, %r12
 	
 .lengthLoop:
-	cmpq $0, (%rdi, %r12, 1)
+	cmpb $0, (%rdi, %r12, 1)
 	jle .writeString
 	addq $1, %r12
 	jmp .lengthLoop
 
 .writeString:
 	movq %rdi, %rsi
-	movl $1, %edi		
+	movl $1, %edi
 	movq %r12, %rdx
 	call write
 	popq %r12
 	ret
-	
-	.globl hex_format_offset
 
+	.globl hex_format_offset
 hex_format_offset:
 	/* TODO: implement */
 	pushq %r14 	/* store result of division */

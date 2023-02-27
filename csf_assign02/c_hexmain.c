@@ -9,7 +9,7 @@ int main(void)
   unsigned offset = 0;
 
   // char array to store the input stream
-  char data_buf[19];
+  char data_buf[17];
 
   // char array to store the offset hex value
   char offset2[16];
