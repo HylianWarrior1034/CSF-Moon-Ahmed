@@ -20,6 +20,7 @@ int main(void)
   // char arrays for formatting
   char space[2] = {' ', '\0'};
   char colon[3] = {':', ' ', '\0'};
+  char newline[2] = {'\n', '\0'};
 
   // read from stdin until nothing is being read (reached the end)
   while (1)
@@ -59,9 +60,8 @@ int main(void)
     }
 
     // null terminator and newline for data_buf
-    data_buf[nread] = '\n';
-    data_buf[nread + 1] = '\0';
     hex_write_string(data_buf);
+    hex_write_string(newline);
     offset += 16;
   }
 }
