@@ -10,6 +10,7 @@ unsigned hex_read(char data_buf[])
 {
     unsigned nread;
     nread = (unsigned)read(0, data_buf, 16); // read and copy up to 16 bytes from stdin
+    data_buf[nread] = '\0';
     return nread;                            // return number of bytes read
 }
 

@@ -17,6 +17,7 @@ hex_read:
 	movq %r12, %rsi
 	movq $16, %rdx
 	call read
+	movb $0, (%r12,%rax,1)
 	popq %r12
 	ret
 
@@ -50,7 +51,7 @@ hex_format_offset:
 .fillZero:
 	cmpq $8, %r10
 	jge .fillChar
-	movq $48, (%rsi, %r10, 1)
+	movb $48, (%rsi, %r10, 1)
 	addq $1, %r10
 	jmp .fillZero
 

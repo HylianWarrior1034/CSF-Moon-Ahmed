@@ -12,7 +12,7 @@ int main(void)
   char data_buf[17];
 
   // char array to store the offset hex value
-  char offset2[16];
+  char offset2[9];
 
   // char array to store the unsigned char value of characters
   char asciival[3];

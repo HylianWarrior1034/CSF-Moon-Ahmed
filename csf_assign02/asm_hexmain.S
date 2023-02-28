@@ -22,6 +22,10 @@ main:
 	/* offset counter */
 	movl $0, 0(%rbp)
 
+	/* char array containing a newline */
+	movb $10, 4(%rbp)
+	movb $0, 5(%rbp)
+
 	/* char array containing a colon */
 	movb $58, 6(%rbp)
 	movb $32, 7(%rbp)
@@ -39,7 +43,7 @@ main:
 	cmpl $0, %r12d
 	je .printLoopExit
 
-	leaq 0(%rbp), %rdi
+	movl 0(%rbp), %edi
 	leaq 14(%rbp), %rsi
 	call hex_format_offset
 
@@ -58,7 +62,7 @@ main:
 	cmpl %r12d, %r13d
 	jge .indexNotLessThanCharsRead
 
-	leaq 23(%rbp,%r13,1), %rdi
+	movb 23(%rbp,%r13,1), %dil
 	leaq 11(%rbp), %rsi
 	call hex_format_byte_as_hex
 
@@ -91,7 +95,7 @@ main:
 	cmpl %r12d, %r13d
 	jge .turnToPrintableLoopExit
 
-	leaq 23(%rbp,%r13,1), %rdi
+	movb 23(%rbp,%r13,1), %dil
 	call hex_to_printable
 
 	movb %al, 23(%rbp,%r13,1)
