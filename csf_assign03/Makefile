@@ -11,9 +11,9 @@ LDFLAGS = -no-pie
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-all : cachesim
+all : csim
 
-cachesim : cachemain.o
+csim : cachemain.o
 	$(CXX) -o $@ $(LDFLAGS) cachemain.o
 
 .PHONY: solution.zip
@@ -22,7 +22,7 @@ solution.zip :
 	zip -9r $@ Makefile README.txt *.h *.cpp
 
 clean :
-	rm -f *.o cachesim \
+	rm -f *.o csim \
 		depend.mak solution.zip
 
 depend.mak :
