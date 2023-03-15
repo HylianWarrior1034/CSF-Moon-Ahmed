@@ -13,8 +13,8 @@ LDFLAGS = -no-pie
 
 all : csim
 
-csim : cachemain.o
-	$(CXX) -o $@ $(LDFLAGS) cachemain.o
+csim : cachemain.o cachestruct.o cachefuncs.o
+	$(CXX) -o $@ $(LDFLAGS) cachemain.o cachestruct.o cachefuncs.o
 
 .PHONY: solution.zip
 solution.zip :

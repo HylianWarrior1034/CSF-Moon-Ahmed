@@ -1,7 +1,12 @@
 #include <stdlib.h>
 #include <iostream>
-#include <cmath.h>
+#include <math.h>
 #include <string.h>
+#include "cachestruct.h"
+#include "cachefuncs.h"
+
+int handle_error(int num_sets, int num_blocks, int num_bytes, char *allocation, char *write);
+bool power_of_two(int n);
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +26,8 @@ int main(int argc, char *argv[])
     }
 
     // create any data structures that will be used to track the cache
+    Cache main_cache = Cache(pow(2, num_sets), pow(2, num_blocks));
+    CacheStats stats = CacheStats();
 
     // main cache simulation loop
     char *curr_line;
@@ -67,7 +74,7 @@ int handle_error(int num_sets, int num_blocks, int num_bytes, char *allocation, 
     }
 }
 
-bool power_of_two(int a)
+bool power_of_two(int n)
 {
     while (n % 2 == 0)
     {
