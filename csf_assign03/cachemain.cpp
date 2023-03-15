@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    int num_sets, num_blocks, num_bytes;
+    uint32_t num_sets, num_blocks, num_bytes;
     bool allocation, write, eviction;
 
     try
@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
     }
 
     // create any data structures that will be used to track the cache
-    Cache main_cache = Cache(pow(2, num_sets), pow(2, num_blocks));
-    CacheStats stats = CacheStats();
+    Cache main_cache = cache_initialize(num_sets, num_blocks);
+    CacheStats stats = {0, 0, 0, 0, 0, 0, 0};
 
     // main cache simulation loop
     char *curr_line;

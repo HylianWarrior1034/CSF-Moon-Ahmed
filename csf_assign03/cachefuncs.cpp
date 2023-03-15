@@ -1,5 +1,8 @@
 #include "cachefuncs.h"
+#include "cachestruct.h"
 #include <string>
+
+// check if string is a number
 
 bool isNumber(const std::string s)
 {
@@ -12,14 +15,22 @@ bool isNumber(const std::string s)
     }
     return true;
 }
-int parseNumber(const char *arg)
+
+// return the char* arg as an int
+// if arg is not an integer, throw invalid argument exception
+
+uint32_t parseNumber(const char *arg)
 {
     if (!isNumber((std::string)arg))
     {
         throw std::invalid_argument("ERROR: Invalid Command Line Argument");
     }
-    return std::atoi(arg);
+    return (uint32_t)std::atoi(arg);
 }
+
+// return true if arg is equal to trueInput
+// return false if arg is equal to falseInput
+// throw invalid argument exception if arg is neither
 
 int parseInput(const char *arg, const char *trueInput, const char *falseInput)
 {
@@ -34,7 +45,12 @@ int parseInput(const char *arg, const char *trueInput, const char *falseInput)
     throw std::invalid_argument("ERROR: Invalid Command Line Argument");
 }
 
-int handle_error(int num_sets, int num_blocks, int num_bytes, bool allocation, bool write)
+// handles error by checking if the criteria are met
+// num_sets, num_blocks, and num_bytes all have to be a power of 2.
+// num_bytes have to be greater or equal to 4
+// no-write-allocate and write-back cannot be used in conjuction
+
+int handle_error(uint32_t num_sets, uint32_t num_blocks, uint32_t num_bytes, bool allocation, bool write)
 {
     if (!power_of_two(num_sets))
     {
@@ -50,9 +66,9 @@ int handle_error(int num_sets, int num_blocks, int num_bytes, bool allocation, b
         std::cerr << "Block size must be a power of 2";
         return 3;
     }
-    if (num_bytes < 4)
+    if (num_bytes <= 4)
     {
-        std::cerr << "Block size in each block must be greater than 4.";
+        std::cerr << "Byte size in each block must be greater than 4.";
         return 4;
     }
     if (!allocation && !write)
@@ -62,17 +78,42 @@ int handle_error(int num_sets, int num_blocks, int num_bytes, bool allocation, b
     }
 }
 
-bool power_of_two(int n)
+// checks if n is power of 2
+
+bool power_of_two(uint32_t n)
 {
+    if (n == 1)
+    {
+        return true;
+    }
+
     while (n % 2 == 0)
     {
-        n /= 2;
+        n >>= 1;
     }
+
     if (n)
     {
         return false;
     }
     return true;
+}
+
+Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks)
+{
+    Block block = {0, 0, 0, false, false};
+    Set set;
+    set.max = 0;
+    Cache cache;
+    for (uint32_t i = 0; i < num_blocks; i++)
+    {
+        set.blocks.push_back(block);
+    }
+    for (uint32_t i = 0; i < num_sets; i++)
+    {
+        cache.sets.push_back(set);
+    }
+    return cache;
 }
 
 void cache_handler(char mem_action, char *address, char *allocation, char *write, char *eviction, int num_sets, int num_bytes, Cache &cache, CacheStats &stats)
