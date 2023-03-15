@@ -10,12 +10,29 @@ bool power_of_two(int n);
 
 int main(int argc, char *argv[])
 {
-    int num_sets = atoi(argv[1]);   // number of sets in the cache (a positive power-of-2)
-    int num_blocks = atoi(argv[2]); // number of blocks in each set (a positive power-of-2)
-    int num_bytes = atoi(argv[3]);  // number of bytes in each block (a positive power-of-2, at least 4)
-    char *allocation = argv[4];     // "write-allocate" or "no-write-allocate"
-    char *write = argv[5];          // "write-through" or "write-back"
-    char *eviction = argv[6];       // "lru" (least-recently-used) or "fifo" evictions
+    if (argc != 7)
+    {
+        std::cerr << "ERROR: Invalid Command Line Argument";
+        return -1;
+    }
+
+    int num_sets, num_blocks, num_bytes;
+    bool allocation, write, eviction;
+
+    try
+    {
+        num_sets = parseNumber(argv[1]);                                         // number of sets in the cache (a positive power-of-2)
+        num_blocks = parseNumber(argv[2]);                                       // number of blocks in each set (a positive power-of-2)
+        num_bytes = parseNumber(argv[3]);                                        // number of bytes in each block (a positive power-of-2, at least 4)
+        allocation = parseInput(argv[4], "write-allocate", "no-write-allocate"); // true = "write-allocate" or false = "no-write-allocate"
+        write = parseInput(argv[5], "write-through", "write-back");              // true = "write-through" or false = "write-back"
+        eviction = parseInput(argv[6], "lru", "fifo");                           // true = "lru" (least-recently-used) or false = "fifo" evictions
+    }
+    catch (std::invalid_argument &ex)
+    {
+        std::cerr << ex.what();
+        return -1;
+    }
 
     // error handling
     int error = handle_error(num_sets, num_blocks, num_bytes, allocation, write);
@@ -44,45 +61,4 @@ int main(int argc, char *argv[])
     }
 
     return 0;
-}
-
-int handle_error(int num_sets, int num_blocks, int num_bytes, char *allocation, char *write)
-{
-    if (!power_of_two(num_sets))
-    {
-        std::cerr << "Number of sets must be a power of 2";
-        return 1;
-    }
-    if (!power_of_two(num_blocks))
-    {
-        std::cerr << "Number of blocks must be a power of 2";
-    }
-    if (!power_of_two(num_bytes))
-    {
-        std::cerr << "Block size must be a power of 2";
-        return 3;
-    }
-    if (num_bytes < 4)
-    {
-        std::cerr << "Block size in each block must be greater than 4.";
-        return 4;
-    }
-    if (strcmp(allocation, "no-write-allocate") == 0 && strcmp(write, "write-back") == 0)
-    {
-        std::cerr << "Write-back and no-write-allocate were both specified";
-        return 5;
-    }
-}
-
-bool power_of_two(int n)
-{
-    while (n % 2 == 0)
-    {
-        n /= 2;
-    }
-    if (n)
-    {
-        return false;
-    }
-    return true;
 }
