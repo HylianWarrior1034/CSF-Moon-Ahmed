@@ -12,11 +12,8 @@ int handle_error(uint32_t num_sets, uint32_t num_blocks, uint32_t num_bytes, boo
 bool power_of_two(uint32_t n);
 Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks);
 void cache_handler(char mem_action, char *address, bool allocation, bool write, bool eviction, uint32_t num_sets, uint32_t num_bytes, Cache &cache, CacheStats &stats);
-void cache_save(uint32_t index, uint32_t tag, char *eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
-void cache_load(uint32_t index, uint32_t tag, char *allocation, char *write, char *eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
-void cache_write_allocate();
-void cache_no_write_allocate();
-void cache_write_through();
-void cache_write_back();
+bool hit bool cache_store(uint32_t index, uint32_t tag, char *eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
+bool cache_load(uint32_t index, uint32_t tag, char *allocation, char *write, char *eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
+
 #else
 #endif

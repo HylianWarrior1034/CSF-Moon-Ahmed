@@ -103,7 +103,7 @@ Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks)
 {
     Block block = {0, 0, 0, false, false};
     Set set;
-    set.max = 0;
+    set.num_elements = 0;
     Cache cache;
     for (uint32_t i = 0; i < num_blocks; i++)
     {
