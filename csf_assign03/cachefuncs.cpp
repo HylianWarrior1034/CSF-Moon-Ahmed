@@ -114,33 +114,48 @@ Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks)
     return cache;
 }
 
-uint32_t readIndex(uint32_t address, uint32_t indexSize, uint32_t indexOffset)
-{
-    uint32_t index = 0;
-    int curr = indexOffset;
+uint32_t log_2(uint32_t num) {
+    uint32_t log = 0;
 
-    for (int i = 0; i < (int)indexSize; i++)
+    for (uint32_t i = num; i != 1; i = i >> 1) {
+        log++;
+    }
+
+    return log;
+}
+
+uint32_t readIndex(uint32_t address, uint32_t num_sets, uint32_t num_bytes)
+{
+    uint32_t offset = log_2(num_bytes);
+    uint32_t index_size = log_2(num_sets);
+
+    uint32_t index = 0;
+
+    for (int i = 0; i < (int) index_size; i++)
     {
-        if (address & (1 << curr))
+        if (address & (1 << offset))
         {
-            index |= 1 << curr;
+            index |= 1 << i;
         }
-        curr++;
+        offset++;
     }
 
     return index;
 }
 
-uint32_t readTag(uint32_t address, uint32_t tagOffset)
+uint32_t readTag(uint32_t address, uint32_t num_sets, uint32_t num_bytes)
 {
+    uint32_t tag_offset = log_2(num_bytes) + log_2(num_sets);
+    uint32_t tag_size = 32 - tag_offset;
     uint32_t tag = 0;
-
-    for (int curr = tagOffset; curr < 32; curr++)
+    
+    for (int i = 0; i < (int) tag_size; i++)
     {
-        if (address & (1 << curr))
+        if (address & (1 << tag_offset))
         {
-            tag |= 1 << curr;
+            tag |= 1 << i;
         }
+        tag_offset++;
     }
 
     return tag;
@@ -215,7 +230,7 @@ void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, 
 
         if (iter->dirty)
         {
-            stats.total_cycles += ((100 << num_bytes) >> 2);
+            stats.total_cycles += ((100 * num_bytes) >> 2);
         }
 
         cache.sets.at(index).tagIndex.erase(iter->tag);
@@ -271,7 +286,7 @@ void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
 
         if (write)
         {
-            stats.total_cycles += ((100 << num_bytes) >> 2);
+            stats.total_cycles += ((100 * num_bytes) >> 2);
             stats.total_cycles++;
         }
         else
@@ -284,7 +299,7 @@ void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
     }
     else
     {
-        stats.total_cycles += ((100 << num_bytes) >> 2);
+        stats.total_cycles += ((100 * num_bytes) >> 2);
         stats.store_misses++;
 
         if (allocation)
@@ -310,7 +325,7 @@ void cache_load(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, Cach
     else
     {
         stats.load_misses++;
-        stats.total_cycles += ((100 << num_bytes) >> 2); // (100 cycles * number of bytes) / 4
+        stats.total_cycles += ((100 * num_bytes) >> 2); // (100 cycles * number of bytes) / 4
         place_in_cache(index, tag, lru, num_bytes, cache, stats);
     }
 }
@@ -318,7 +333,7 @@ void cache_load(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, Cach
 void cache_handler(char mem_action, uint32_t address_val, bool allocation, bool write, bool lru, uint32_t num_sets, uint32_t num_bytes, Cache &cache, CacheStats &stats)
 {
     uint32_t index = readIndex(address_val, num_sets, num_bytes);
-    uint32_t tag = readTag(address_val, num_bytes + num_sets);
+    uint32_t tag = readTag(address_val, num_sets, num_bytes);
 
     if (mem_action == 's')
     {

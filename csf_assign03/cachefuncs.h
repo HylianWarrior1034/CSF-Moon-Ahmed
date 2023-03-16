@@ -21,8 +21,9 @@ void place_in_cache(uint32_t index, uint32_t tag, bool eviction, uint32_t num_by
 bool hit(uint32_t index, uint32_t tag, Cache &cache);
 void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
 void cache_load(uint32_t index, uint32_t tag, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
-uint32_t readIndex(uint32_t address, uint32_t indexSize, uint32_t indexOffset);
-uint32_t readTag(uint32_t address, uint32_t tagOffset);
+uint32_t log_2(uint32_t num);
+uint32_t readIndex(uint32_t address, uint32_t num_sets, uint32_t num_bytes);
+uint32_t readTag(uint32_t address, uint32_t num_sets, uint32_t num_bytes);
 void printStats(CacheStats &stats);
 
 #else
