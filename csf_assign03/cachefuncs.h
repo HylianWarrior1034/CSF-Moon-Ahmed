@@ -19,8 +19,8 @@ std::vector<Block>::iterator find_empty_spot(Set &set);
 std::vector<Block>::iterator choose_evicted_block(Set &set, bool eviction);
 void place_in_cache(uint32_t index, uint32_t tag, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
 bool hit(uint32_t index, uint32_t tag, Cache &cache);
-bool cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
-bool cache_load(uint32_t index, uint32_t tag, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
+void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
+void cache_load(uint32_t index, uint32_t tag, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
 uint32_t readIndex(uint32_t address, uint32_t indexSize, uint32_t indexOffset);
 uint32_t readTag(uint32_t address, uint32_t tagOffset);
 
