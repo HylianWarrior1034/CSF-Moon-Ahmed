@@ -1,5 +1,6 @@
 #include "cachefuncs.h"
 #include "cachestruct.h"
+#include <cstring>
 #include <string>
 
 // check if string is a number
