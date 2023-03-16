@@ -107,7 +107,7 @@ Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks)
     {
         set.blocks.push_back(block);
     }
-    for (uint32_t i = 0; i < num_sets; i++)
+    for (uint32_t j = 0; j < num_sets; j++)
     {
         cache.sets.push_back(set);
     }
