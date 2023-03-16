@@ -53,28 +53,28 @@ int parseInput(const char *arg, const char *trueInput, const char *falseInput)
 
 int handle_error(uint32_t num_sets, uint32_t num_blocks, uint32_t num_bytes, bool allocation, bool write)
 {
-    if (!power_of_two(num_sets))
+    if (!is_power_of_two(num_sets))
     {
-        std::cerr << "Number of sets must be a power of 2";
+        std::cerr << "Number of sets must be a power of 2" << std::endl;
         return 1;
     }
-    if (!power_of_two(num_blocks))
+    if (!is_power_of_two(num_blocks))
     {
-        std::cerr << "Number of blocks must be a power of 2";
+        std::cerr << "Number of blocks must be a power of 2" << std::endl;
     }
-    if (!power_of_two(num_bytes))
+    if (!is_power_of_two(num_bytes))
     {
-        std::cerr << "Block size must be a power of 2";
+        std::cerr << "Block size must be a power of 2" << std::endl;
         return 3;
     }
     if (num_bytes <= 4)
     {
-        std::cerr << "Byte size in each block must be greater than 4.";
+        std::cerr << "Byte size in each block must be greater than 4." << std::endl;
         return 4;
     }
     if (!allocation && !write)
     {
-        std::cerr << "Write-back and no-write-allocate were both specified";
+        std::cerr << "Write-back and no-write-allocate were both specified" << std::endl;
         return 5;
     }
 
@@ -83,21 +83,16 @@ int handle_error(uint32_t num_sets, uint32_t num_blocks, uint32_t num_bytes, boo
 
 // checks if n is power of 2
 
-bool power_of_two(uint32_t n)
+bool is_power_of_two(uint32_t n)
 {
-    if (n == 1)
-    {
-        return true;
-    }
+    if (n == 0)
+        return 0;
 
-    while (n % 2 == 0)
+    while (n != 1)
     {
+        if (n % 2 != 0)
+            return false;
         n >>= 1;
-    }
-
-    if (n)
-    {
-        return false;
     }
     return true;
 }

@@ -10,7 +10,7 @@ bool isNumber(const std::string s);
 uint32_t parseNumber(const char *arg);
 int parseInput(const char *arg, const char *trueInput, const char *falseInput);
 int handle_error(uint32_t num_sets, uint32_t num_blocks, uint32_t num_bytes, bool allocation, bool write);
-bool power_of_two(uint32_t n);
+bool is_power_of_two(uint32_t n);
 Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks);
 void cache_handler(char mem_action, char *address, bool allocation, bool write, bool eviction, uint32_t num_sets, uint32_t num_bytes, Cache &cache, CacheStats &stats);
 void update_timestamp_LRU(uint32_t index, uint32_t tag, Cache &cache);

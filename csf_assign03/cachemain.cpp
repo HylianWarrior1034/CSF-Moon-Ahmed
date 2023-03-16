@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     }
     catch (std::invalid_argument &ex)
     {
-        std::cerr << ex.what();
+        std::cerr << ex.what() << std::endl;
         return -1;
     }
 
