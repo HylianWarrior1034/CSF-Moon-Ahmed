@@ -199,8 +199,8 @@ std::vector<Block>::iterator choose_evicted_block(Set &set, bool lru)
             {
                 minimum = iter->access_time;
                 oldest_block = iter;
-                iter++;
             }
+            iter++;
         }
     }
     else
@@ -212,8 +212,8 @@ std::vector<Block>::iterator choose_evicted_block(Set &set, bool lru)
             {
                 minimum = iter->load_time;
                 oldest_block = iter;
-                iter++;
             }
+            iter++;
         }
     }
 
