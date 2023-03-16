@@ -47,19 +47,20 @@ int main(int argc, char *argv[])
     CacheStats stats = {0, 0, 0, 0, 0, 0, 0};
 
     // main cache simulation loop
-    char *curr_line;
-    while (std::cin >> curr_line)
+    char cmd;
+    uint32_t address;
+    uint32_t dump;
+    while (std::cin >> cmd >> std::hex >> address >> dump)
     {
-        char mem_action = curr_line[0]; // obtaining either 's' or 'l'
-        char address[11];               // creating char array to store address of current memory access
-        address[10] = '\n';
-        // loop to copy memory address
-        for (int i = 0; i < 10; i++)
+        if (cmd == 'l' || cmd == 's')
         {
-            address[i] = curr_line[i + 2];
+            cache_handler(cmd, address, allocation, write, lru, num_sets, num_bytes, main_cache, stats);
         }
-
-        cache_handler(mem_action, address, allocation, write, lru, num_sets, num_bytes, main_cache, stats);
+        else
+        {
+            std::cerr << "ERROR: Invalid Command" << std::endl;
+            return -1;
+        }
     }
 
     printStats(stats);

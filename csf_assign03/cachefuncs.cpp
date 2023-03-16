@@ -315,9 +315,8 @@ void cache_load(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, Cach
     }
 }
 
-void cache_handler(char mem_action, char *address, bool allocation, bool write, bool lru, uint32_t num_sets, uint32_t num_bytes, Cache &cache, CacheStats &stats)
+void cache_handler(char mem_action, uint32_t address_val, bool allocation, bool write, bool lru, uint32_t num_sets, uint32_t num_bytes, Cache &cache, CacheStats &stats)
 {
-    uint32_t address_val = std::stoi(address + 2, 0, 16);
     uint32_t index = readIndex(address_val, num_sets, num_bytes);
     uint32_t tag = readTag(address_val, num_bytes + num_sets);
 
