@@ -17,7 +17,7 @@ typedef struct
 typedef struct
 {
     std::vector<Block> blocks;
-    std::map<uint32_t, uint32_t> tagIndex;
+    std::map<uint32_t, uint32_t> tagIndex; // which index in the blocks vector has the corresponding tag data
     uint32_t timestamp;
 } Set;
 

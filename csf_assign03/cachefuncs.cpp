@@ -138,12 +138,46 @@ uint32_t readTag(uint32_t address, uint32_t tagOffset) {
     return tag;
 }
 
-void cache_handler(char mem_action, char *address, char *allocation, char *write, char *eviction, int num_sets, int num_bytes, Cache &cache, CacheStats &stats)
+bool hit(uint32_t index, uint32_t tag, Cache cache) {
+    map<uint32_t, uint32_t>::iterator it = (cache->sets.at(index))->tagToIndex.find(tag);
+    if (it != (cache->sets.at(index))->tagToIndex.end()) {
+        return true;
+    }
+    return false;
+}
+
+bool cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats) {
+    if (hit(index, tag, cache)) {
+        if (eviction) {
+            // update the timestamp using LRU protocol
+        } else {
+            // update the cycles but not sure how???
+        }
+        if (write) {
+            stats.total_cycles += 101;
+        } else {
+            stats.total_cycles++;
+        }
+    } else {
+        if (allocation) {
+            // update cycles but not sure how???
+        } else {
+            stats.total_cycles += 100;
+        }
+    }
+}
+
+void cache_handler(char mem_action, char *address, bool allocation, bool write, bool eviction, int num_sets, int num_bytes, Cache &cache, CacheStats &stats)
 {
     uint32_t address_val = std::stoi(address + 2, 0, 16);
     uint32_t index = readIndex(address_val, num_sets, num_bytes);
     uint32_t tag = readTag(address_val, num_bytes + num_sets);
-    // TODO: obtain tag and index from the address bits and then either call the load or save function
+
+    if (mem_action == 's') {
+        cache_store(index, tag, allocation, write, eviction, num_bytes, cache, stats);
+    } else if (mem_action == 'l') {
+        cache_load(index, tag, eviction, num_bytes, cache, stats);
+    }
 }
 
 // TODO: define other functions here
