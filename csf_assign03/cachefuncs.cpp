@@ -119,22 +119,26 @@ Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks)
 uint32_t readIndex(uint32_t address, uint32_t indexSize, uint32_t indexOffset) {
     uint32_t index = 0;
     int curr = indexOffset;
+
     for (int i = 0; i < indexSize; i++) {
         if (address & (1 << curr)) {
             index |= 1 << curr;
         }
         curr++;
     }
+    
     return index;
 }
 
 uint32_t readTag(uint32_t address, uint32_t tagOffset) {
     uint32_t tag = 0;
+
     for (int curr = tagOffset; curr < 32; curr++) {
         if (address & (1 << curr)) {
             tag |= 1 << curr;
         }
     }
+
     return tag;
 }
 
@@ -195,7 +199,7 @@ void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, 
         iter = choose_evicted_block(cache.sets.at(index), lru);
 
         if (iter->dirty) {
-            stats.total_cycles += ((100 * power_of_two(num_bytes)) >> 2);
+            stats.total_cycles += ((100 << num_bytes) >> 2);
         }
 
         cache.sets.at(index).tagIndex.erase(iter->tag);
@@ -240,7 +244,7 @@ bool cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
         }
 
         if (write) {
-            stats.total_cycles += ((100 * power_of_two(num_bytes)) >> 2);
+            stats.total_cycles += ((100 << num_bytes) >> 2);
             stats.total_cycles++;
         } else {
             stats.total_cycles++;
@@ -250,7 +254,7 @@ bool cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
         }
 
     } else {
-        stats.total_cycles += ((100 * power_of_two(num_bytes)) >> 2);
+        stats.total_cycles += ((100 << num_bytes) >> 2);
 
         if (allocation) {
             stats.total_cycles++;
@@ -268,7 +272,7 @@ bool cache_load(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, Cach
             update_timestamp_LRU(index, tag, cache);
         }
     } else {
-        stats.total_cycles += ((100 * power_of_two(num_bytes)) >> 2); // (100 cycles * number of bytes) / 4
+        stats.total_cycles += ((100 << num_bytes) >> 2); // (100 cycles * number of bytes) / 4
         place_in_cache(index, tag, lru, num_bytes, cache, stats);
     }
 }
