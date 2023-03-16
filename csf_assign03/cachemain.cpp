@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     }
 
     uint32_t num_sets, num_blocks, num_bytes;
-    bool allocation, write, eviction;
+    bool allocation, write, lru;
 
     try
     {
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
         num_bytes = parseNumber(argv[3]);                                        // number of bytes in each block (a positive power-of-2, at least 4)
         allocation = parseInput(argv[4], "write-allocate", "no-write-allocate"); // true = "write-allocate" or false = "no-write-allocate"
         write = parseInput(argv[5], "write-through", "write-back");              // true = "write-through" or false = "write-back"
-        eviction = parseInput(argv[6], "lru", "fifo");                           // true = "lru" (least-recently-used) or false = "fifo" evictions
+        lru = parseInput(argv[6], "lru", "fifo");                           // true = "lru" (least-recently-used) or false = "fifo" evictions
     }
     catch (std::invalid_argument &ex)
     {
@@ -58,6 +58,8 @@ int main(int argc, char *argv[])
         {
             address[i] = curr_line[i + 2];
         }
+
+        cache_handler(mem_action, address, allocation, write, lru, num_sets, num_bytes, main_cache, stats);
     }
 
     return 0;

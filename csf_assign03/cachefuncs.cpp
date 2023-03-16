@@ -138,46 +138,150 @@ uint32_t readTag(uint32_t address, uint32_t tagOffset) {
     return tag;
 }
 
-bool hit(uint32_t index, uint32_t tag, Cache cache) {
-    map<uint32_t, uint32_t>::iterator it = (cache->sets.at(index))->tagToIndex.find(tag);
-    if (it != (cache->sets.at(index))->tagToIndex.end()) {
+void update_timestamp_LRU(uint32_t index, uint32_t tag, Cache &cache) {
+    std::vector<Block>* blocks = &(cache.sets.at(index).blocks);
+    std::map<uint32_t, uint32_t>* tagIndex = &(cache.sets.at(index).tagIndex);
+    
+    blocks->at(tagIndex->at(tag)).access_time = cache.sets.at(index).timestamp;
+    cache.sets.at(index).timestamp++;
+}
+
+void update_timestamp_FIFO(uint32_t index, uint32_t tag, Cache &cache) {
+    std::vector<Block>* blocks = &(cache.sets.at(index).blocks);
+    std::map<uint32_t, uint32_t>* tagIndex = &(cache.sets.at(index).tagIndex);
+    
+    blocks->at(tagIndex->at(tag)).load_time = cache.sets.at(index).timestamp;
+    cache.sets.at(index).timestamp++;
+}
+
+std::vector<Block>::iterator find_empty_spot(Set &set) {
+    return set.blocks.begin() + set.tagIndex.size();
+}
+
+std::vector<Block>::iterator choose_evicted_block(Set &set, bool lru) {
+    uint32_t minimum = set.timestamp;
+    std::vector<Block>::iterator oldest_block;
+    std::vector<Block>::iterator iter = set.blocks.begin();
+
+    if (lru) {
+
+        while (iter != set.blocks.end()) {
+            if (iter->access_time < minimum) {
+                minimum = iter->access_time;
+                oldest_block = iter;
+                iter++;
+            }
+        }
+
+    } else {
+
+        while (iter != set.blocks.end()) {
+            if (iter->load_time < minimum) {
+                minimum = iter->load_time;
+                oldest_block = iter;
+                iter++;
+            }
+        }
+
+    }
+
+    return oldest_block;
+}
+
+void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, Cache &cache, CacheStats &stats) {
+    std::vector<Block>::iterator iter = find_empty_spot(cache.sets.at(index));
+
+    if (iter == cache.sets.at(index).blocks.end()) {
+        iter = choose_evicted_block(cache.sets.at(index), lru);
+
+        if (iter->dirty) {
+            stats.total_cycles += ((100 * power_of_two(num_bytes)) >> 2);
+        }
+
+        cache.sets.at(index).tagIndex.erase(iter->tag);
+    }
+
+    cache.sets.at(index).timestamp++;
+
+    // updating block
+    iter->tag = tag;
+    iter->valid = true;
+    iter->dirty = false;
+
+    // updating either access or load timestamp depending on the eviction protocol
+    if (lru) {
+        iter->access_time = cache.sets.at(index).timestamp;
+        iter->load_time = 0;
+    } else {
+        iter->access_time = 0;
+        iter->load_time = cache.sets.at(index).timestamp;
+    }
+
+    // updating tags in the map
+    cache.sets.at(index).tagIndex[tag] = iter - cache.sets.at(index).blocks.begin();
+        
+}
+
+bool hit(uint32_t index, uint32_t tag, Cache &cache) {
+    std::map<uint32_t, uint32_t>::iterator iter = (cache.sets.at(index)).tagIndex.find(tag);
+    if (iter != (cache.sets.at(index)).tagIndex.end()) {
         return true;
     }
     return false;
 }
 
-bool cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats) {
+bool cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool lru, uint32_t num_bytes, Cache &cache, CacheStats &stats) {
     if (hit(index, tag, cache)) {
-        if (eviction) {
-            // update the timestamp using LRU protocol
+
+        if (lru) {
+            update_timestamp_LRU(index, tag, cache);
         } else {
-            // update the cycles but not sure how???
+            update_timestamp_FIFO(index, tag, cache);
         }
+
         if (write) {
-            stats.total_cycles += 101;
+            stats.total_cycles += ((100 * power_of_two(num_bytes)) >> 2);
+            stats.total_cycles++;
         } else {
             stats.total_cycles++;
+
+            uint32_t tag_index = cache.sets.at(index).tagIndex[tag];
+            cache.sets.at(index).blocks[tag_index].dirty = true;
         }
+
     } else {
+        stats.total_cycles += ((100 * power_of_two(num_bytes)) >> 2);
+
         if (allocation) {
-            // update cycles but not sure how???
-        } else {
-            stats.total_cycles += 100;
+            stats.total_cycles++;
+            place_in_cache(index, tag, lru, num_bytes, cache, stats);
         }
+
     }
 }
 
-void cache_handler(char mem_action, char *address, bool allocation, bool write, bool eviction, int num_sets, int num_bytes, Cache &cache, CacheStats &stats)
+bool cache_load(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, Cache &cache, CacheStats &stats) {
+    if (hit(index, tag, cache)) {
+        stats.total_cycles++;
+
+        if (lru) {
+            update_timestamp_LRU(index, tag, cache);
+        }
+    } else {
+        stats.total_cycles += ((100 * power_of_two(num_bytes)) >> 2); // (100 cycles * number of bytes) / 4
+        place_in_cache(index, tag, lru, num_bytes, cache, stats);
+    }
+}
+
+void cache_handler(char mem_action, char *address, bool allocation, bool write, bool lru, int num_sets, int num_bytes, Cache &cache, CacheStats &stats)
 {
     uint32_t address_val = std::stoi(address + 2, 0, 16);
     uint32_t index = readIndex(address_val, num_sets, num_bytes);
     uint32_t tag = readTag(address_val, num_bytes + num_sets);
 
     if (mem_action == 's') {
-        cache_store(index, tag, allocation, write, eviction, num_bytes, cache, stats);
+        cache_store(index, tag, allocation, write, lru, num_bytes, cache, stats);
     } else if (mem_action == 'l') {
-        cache_load(index, tag, eviction, num_bytes, cache, stats);
+        cache_load(index, tag, lru, num_bytes, cache, stats);
     }
 }
-
-// TODO: define other functions here

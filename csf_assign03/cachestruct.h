@@ -28,13 +28,13 @@ typedef struct
 
 typedef struct
 {
-    int total_loads;
-    int total_stores;
-    int load_hits;
-    int load_misses;
-    int store_hits;
-    int store_misses;
-    int total_cycles;
+    uint32_t total_loads;
+    uint32_t total_stores;
+    uint32_t load_hits;
+    uint32_t load_misses;
+    uint32_t store_hits;
+    uint32_t store_misses;
+    uint32_t total_cycles;
 } CacheStats;
 
 #else
