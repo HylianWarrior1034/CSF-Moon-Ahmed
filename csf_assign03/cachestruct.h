@@ -18,7 +18,7 @@ typedef struct
 {
     std::vector<Block> blocks;
     std::map<uint32_t, uint32_t> tagIndex;
-    uint32_t num_elements;
+    uint32_t timestamp;
 } Set;
 
 typedef struct

@@ -103,7 +103,7 @@ Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks)
 {
     Block block = {0, 0, 0, false, false};
     Set set;
-    set.num_elements = 0;
+    set.timestamp = 0;
     Cache cache;
     for (uint32_t i = 0; i < num_blocks; i++)
     {
@@ -116,9 +116,33 @@ Cache cache_initialize(uint32_t num_sets, uint32_t num_blocks)
     return cache;
 }
 
+uint32_t readIndex(uint32_t address, uint32_t indexSize, uint32_t indexOffset) {
+    uint32_t index = 0;
+    int curr = indexOffset;
+    for (int i = 0; i < indexSize; i++) {
+        if (address & (1 << curr)) {
+            index |= 1 << curr;
+        }
+        curr++;
+    }
+    return index;
+}
+
+uint32_t readTag(uint32_t address, uint32_t tagOffset) {
+    uint32_t tag = 0;
+    for (int curr = tagOffset; curr < 32; curr++) {
+        if (address & (1 << curr)) {
+            tag |= 1 << curr;
+        }
+    }
+    return tag;
+}
+
 void cache_handler(char mem_action, char *address, char *allocation, char *write, char *eviction, int num_sets, int num_bytes, Cache &cache, CacheStats &stats)
 {
     uint32_t address_val = std::stoi(address + 2, 0, 16);
+    uint32_t index = readIndex(address_val, num_sets, num_bytes);
+    uint32_t tag = readTag(address_val, num_bytes + num_sets);
     // TODO: obtain tag and index from the address bits and then either call the load or save function
 }
 
