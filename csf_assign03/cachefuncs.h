@@ -23,6 +23,7 @@ void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
 void cache_load(uint32_t index, uint32_t tag, bool eviction, uint32_t num_bytes, Cache &cache, CacheStats &stats);
 uint32_t readIndex(uint32_t address, uint32_t indexSize, uint32_t indexOffset);
 uint32_t readTag(uint32_t address, uint32_t tagOffset);
+void printStats(CacheStats &stats);
 
 #else
 #endif

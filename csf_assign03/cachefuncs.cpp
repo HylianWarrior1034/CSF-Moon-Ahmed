@@ -337,3 +337,14 @@ void cache_handler(char mem_action, char *address, bool allocation, bool write, 
         cache_load(index, tag, lru, num_bytes, cache, stats);
     }
 }
+
+void printStats(CacheStats &stats)
+{
+    std::cout << "Total loads: " << stats.total_loads << std::endl;
+    std::cout << "Total stores: " << stats.total_stores << std::endl;
+    std::cout << "Load hits: " << stats.load_hits << std::endl;
+    std::cout << "Load misses: " << stats.load_misses << std::endl;
+    std::cout << "Store hits: " << stats.store_hits << std::endl;
+    std::cout << "Store misses: " << stats.store_misses << std::endl;
+    std::cout << "Total cycles: " << stats.total_cycles << std::endl;
+}
