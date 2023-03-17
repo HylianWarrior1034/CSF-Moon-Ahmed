@@ -67,7 +67,7 @@ int handle_error(uint32_t num_sets, uint32_t num_blocks, uint32_t num_bytes, boo
         std::cerr << "Block size must be a power of 2" << std::endl;
         return 3;
     }
-    if (num_bytes <= 4)
+    if (num_bytes < 4)
     {
         std::cerr << "Byte size in each block must be greater than 4." << std::endl;
         return 4;
@@ -224,6 +224,10 @@ void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, 
 {
     std::vector<Block>::iterator iter = find_empty_spot(cache.sets.at(index));
 
+    if (cache.sets.at(index).tagIndex.size() > cache.sets.at(index).blocks.size()) {
+        std::cout << "Bruh moment" << std::endl;
+    }
+
     if (iter == cache.sets.at(index).blocks.end())
     {
         iter = choose_evicted_block(cache.sets.at(index), lru);
@@ -235,8 +239,6 @@ void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, 
 
         cache.sets.at(index).tagIndex.erase(iter->tag);
     }
-
-    cache.sets.at(index).timestamp++;
 
     // updating block
     iter->tag = tag;
@@ -255,7 +257,10 @@ void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, 
         iter->load_time = cache.sets.at(index).timestamp;
     }
 
-    // updating tags in the map
+    // increment timestamp
+    cache.sets.at(index).timestamp++;
+
+    // updating tag in the map
     cache.sets.at(index).tagIndex[tag] = iter - cache.sets.at(index).blocks.begin();
 }
 
