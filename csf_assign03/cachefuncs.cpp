@@ -224,10 +224,6 @@ void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, 
 {
     std::vector<Block>::iterator iter = find_empty_spot(cache.sets.at(index));
 
-    if (cache.sets.at(index).tagIndex.size() > cache.sets.at(index).blocks.size()) {
-        std::cout << "Bruh moment" << std::endl;
-    }
-
     if (iter == cache.sets.at(index).blocks.end())
     {
         iter = choose_evicted_block(cache.sets.at(index), lru);
@@ -291,7 +287,7 @@ void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
 
         if (write)
         {
-            stats.total_cycles += ((100 * num_bytes) >> 2);
+            stats.total_cycles += 100;
             stats.total_cycles++;
         }
         else
@@ -304,13 +300,15 @@ void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
     }
     else
     {
-        stats.total_cycles += ((100 * num_bytes) >> 2);
         stats.store_misses++;
 
         if (allocation)
         {
             stats.total_cycles++;
+            stats.total_cycles += ((100 * num_bytes) >> 2);
             place_in_cache(index, tag, lru, num_bytes, cache, stats);
+        } else {
+            stats.total_cycles += 100;
         }
     }
 }
