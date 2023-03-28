@@ -67,7 +67,7 @@ int handle_error(uint32_t num_sets, uint32_t num_blocks, uint32_t num_bytes, boo
         std::cerr << "Block size must be a power of 2" << std::endl;
         return 3;
     }
-    if (num_bytes <= 4)
+    if (num_bytes < 4)
     {
         std::cerr << "Byte size in each block must be greater than 4." << std::endl;
         return 4;
@@ -236,8 +236,6 @@ void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, 
         cache.sets.at(index).tagIndex.erase(iter->tag);
     }
 
-    cache.sets.at(index).timestamp++;
-
     // updating block
     iter->tag = tag;
     iter->valid = true;
@@ -255,7 +253,10 @@ void place_in_cache(uint32_t index, uint32_t tag, bool lru, uint32_t num_bytes, 
         iter->load_time = cache.sets.at(index).timestamp;
     }
 
-    // updating tags in the map
+    // increment timestamp
+    cache.sets.at(index).timestamp++;
+
+    // updating tag in the map
     cache.sets.at(index).tagIndex[tag] = iter - cache.sets.at(index).blocks.begin();
 }
 
@@ -286,7 +287,7 @@ void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
 
         if (write)
         {
-            stats.total_cycles += ((100 * num_bytes) >> 2);
+            stats.total_cycles += 100;
             stats.total_cycles++;
         }
         else
@@ -299,13 +300,15 @@ void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
     }
     else
     {
-        stats.total_cycles += ((100 * num_bytes) >> 2);
         stats.store_misses++;
 
         if (allocation)
         {
             stats.total_cycles++;
+            stats.total_cycles += ((100 * num_bytes) >> 2);
             place_in_cache(index, tag, lru, num_bytes, cache, stats);
+        } else {
+            stats.total_cycles += 100;
         }
     }
 }
