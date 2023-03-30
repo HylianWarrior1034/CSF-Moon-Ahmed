@@ -280,10 +280,6 @@ void cache_store(uint32_t index, uint32_t tag, bool allocation, bool write, bool
         {
             update_timestamp_LRU(index, tag, cache);
         }
-        else
-        {
-            update_timestamp_FIFO(index, tag, cache);
-        }
 
         if (write)
         {

@@ -1,6 +1,6 @@
 import subprocess
 
-strategy = ["write-allocate write-back", "no-write-allocate write-through"]
+strategy = ["write-allocate write-back", "no-write-allocate write-through", "write-allocate write-through"]
 evict = ["lru", "fifo"]
 sizes = ["4", "256"]
 mapping = ["1024 1", "256 4", "1 1024"]
