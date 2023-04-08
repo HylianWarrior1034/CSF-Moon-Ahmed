@@ -38,7 +38,27 @@ void merge(int64_t *arr, size_t begin, size_t mid, size_t end, int64_t *temparr)
 }
 
 void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
-  // TODO: implement
+  // TODO: Implement
+  if (end - begin + 1 <= threshold) {
+    qsort(&arr[begin], end - begin + 1, sizeof(int64_t), compare_i64()); // not sure what to put for the comparison function
+    return;
+  }
+  else {
+    // create two forks and sort left and right sides
+    pid_t pid = fork();
+
+    if (pid == 0) {
+      merge_sort(arr, begin, end / 2, threshold); // child
+    } else {
+      merge_sort(arr, (end / 2) + 1, end, threshold); // parent
+    }
+  }
+
+  int64_t temparr[end + 1];
+
+  // merge them
+  merge(arr, begin, end / 2, end, temparr);
+
 }
 
 int main(int argc, char **argv) {
