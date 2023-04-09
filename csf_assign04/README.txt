@@ -1,7 +1,10 @@
 CONTRIBUTIONS
+Daniel Moon (dmoon9)
+Ihsan Ahmed (iahmed6)
 
-TODO: write a brief summary of how each team member contributed to
-the project.
+dmoon9: Discussed code with partner and implemented it together.
+
+iahmed6: Discussed code with partner and implemented it together.
 
 REPORT
 

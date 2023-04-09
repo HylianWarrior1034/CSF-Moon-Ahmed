@@ -92,10 +92,11 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
   int64_t temparr[(end - begin) + 1];
   
   // merge them
-  merge(arr, begin, (end + begin) / 2 + 1, end, temparr);
+  merge(arr, begin, ((end + begin) / 2) + 1, end, temparr);
 
+  int j = 0;
   for (size_t i = begin; i < end; i++) {
-    arr[i] = temparr[i];
+    arr[i] = temparr[j++];
   }
 
 }
@@ -141,7 +142,7 @@ int main(int argc, char **argv) {
   }
 
   // TODO: sort the data!
-  merge_sort(data, 0, (file_size_in_bytes / 8) - 1, threshold);
+  merge_sort(data, 0, (file_size_in_bytes / 8), threshold);
 
   // TODO: unmap and close the file
   munmap(NULL, file_size_in_bytes);
