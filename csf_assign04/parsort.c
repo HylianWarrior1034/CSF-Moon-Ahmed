@@ -57,18 +57,15 @@ void merge(int64_t *arr, size_t begin, size_t mid, size_t end, int64_t *temparr)
 
 void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
   // TODO: Implement
+  size_t mid = (end + begin) / 2;
   if (end - begin + 1 <= threshold) {
     qsort(&arr[begin], end - begin + 1, sizeof(int64_t), compare_i64); // not sure what to put for the comparison function
     return;
   }
   else {
     // create two forks and sort left and right sides
-    //pid_t pid = fork();
-    size_t mid = (end + begin) / 2;
+    pid_t pid = fork();
 
-    merge_sort(arr, begin, mid, threshold); // child
-    merge_sort(arr, mid + 1, end, threshold); // parent
-    /*
     if (pid == -1) {
       fprintf(stderr, "Error: new fork could not open.\n");
       exit(2);
@@ -78,10 +75,8 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
     } else {
       merge_sort(arr, mid + 1, end, threshold); // parent
     }
-    */
   }
 
-  /*
   int wstatus;
   // blocks until the process indentified by pid_to_wait_for completes
   pid_t actual_pid = waitpid(0, &wstatus, 0);
@@ -103,17 +98,18 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
     fprintf(stderr, "Error: subprocess returned error.\n");
     exit(5);
   }
-  */
 
-  int64_t temparr[(end - begin) + 1];
+  int64_t *temparr = malloc(sizeof(uint64_t) * ((end - begin) + 1));
   
   // merge them
-  merge(arr, begin, ((end + begin) / 2) + 1, end, temparr);
+  merge(arr, begin, mid + 1, end, temparr);
 
   int j = 0;
   for (size_t i = begin; i <= end; i++) {
     arr[i] = temparr[j++];
   }
+
+  free(temparr);
 
 }
 
