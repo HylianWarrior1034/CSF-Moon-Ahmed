@@ -18,6 +18,16 @@ int compare_i64(const void *left, const void *right) {
   }
 }
 
+/*
+int compare_i64(const void *a, const void *b)
+{
+    const int64_t *ia = (const int64_t *)a; // casting pointer types 
+    const int64_t *ib = (const int64_t *)b;
+    return *ia  - *ib; 
+}
+*/
+
+
 // Merge the elements in the sorted ranges [begin, mid) and [mid, end),
 // copying the result into temparr.
 void merge(int64_t *arr, size_t begin, size_t mid, size_t end, int64_t *temparr) {
@@ -53,9 +63,12 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
   }
   else {
     // create two forks and sort left and right sides
-    pid_t pid = fork();
+    //pid_t pid = fork();
     size_t mid = (end + begin) / 2;
 
+    merge_sort(arr, begin, mid, threshold); // child
+    merge_sort(arr, mid + 1, end, threshold); // parent
+    /*
     if (pid == -1) {
       fprintf(stderr, "Error: new fork could not open.\n");
       exit(2);
@@ -65,8 +78,10 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
     } else {
       merge_sort(arr, mid + 1, end, threshold); // parent
     }
+    */
   }
 
+  /*
   int wstatus;
   // blocks until the process indentified by pid_to_wait_for completes
   pid_t actual_pid = waitpid(0, &wstatus, 0);
@@ -88,6 +103,7 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
     fprintf(stderr, "Error: subprocess returned error.\n");
     exit(5);
   }
+  */
 
   int64_t temparr[(end - begin) + 1];
   
@@ -95,7 +111,7 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
   merge(arr, begin, ((end + begin) / 2) + 1, end, temparr);
 
   int j = 0;
-  for (size_t i = begin; i < end; i++) {
+  for (size_t i = begin; i <= end; i++) {
     arr[i] = temparr[j++];
   }
 
@@ -142,7 +158,7 @@ int main(int argc, char **argv) {
   }
 
   // TODO: sort the data!
-  merge_sort(data, 0, (file_size_in_bytes / 8), threshold);
+  merge_sort(data, 0, (file_size_in_bytes / 8) - 1, threshold);
 
   // TODO: unmap and close the file
   munmap(NULL, file_size_in_bytes);
