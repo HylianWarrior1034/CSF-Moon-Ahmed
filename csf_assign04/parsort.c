@@ -10,6 +10,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+int compare_i64(const void *left, const void *right) {
+  if (*(int64_t *) left > *(int64_t *) right) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
 // Merge the elements in the sorted ranges [begin, mid) and [mid, end),
 // copying the result into temparr.
 void merge(int64_t *arr, size_t begin, size_t mid, size_t end, int64_t *temparr) {
@@ -40,24 +48,55 @@ void merge(int64_t *arr, size_t begin, size_t mid, size_t end, int64_t *temparr)
 void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
   // TODO: Implement
   if (end - begin + 1 <= threshold) {
-    qsort(&arr[begin], end - begin + 1, sizeof(int64_t), compare_i64()); // not sure what to put for the comparison function
+    qsort(&arr[begin], end - begin + 1, sizeof(int64_t), compare_i64); // not sure what to put for the comparison function
     return;
   }
   else {
     // create two forks and sort left and right sides
     pid_t pid = fork();
+    size_t mid = (end + begin) / 2;
 
-    if (pid == 0) {
-      merge_sort(arr, begin, end / 2, threshold); // child
+    if (pid == -1) {
+      fprintf(stderr, "Error: new fork could not open.\n");
+      exit(2);
+    }else if (pid == 0) {
+      merge_sort(arr, begin, mid, threshold); // child
+      exit(0);
     } else {
-      merge_sort(arr, (end / 2) + 1, end, threshold); // parent
+      merge_sort(arr, mid + 1, end, threshold); // parent
     }
   }
 
-  int64_t temparr[end + 1];
+  int wstatus;
+  // blocks until the process indentified by pid_to_wait_for completes
+  pid_t actual_pid = waitpid(0, &wstatus, 0);
+  if (actual_pid == -1) {
+    fprintf(stderr, "Error: waitpid failure.\n");
+    exit(3);
+  }
 
+  if (!WIFEXITED(wstatus)) {
+    // subprocess crashed, was interrupted, or did not exit normally
+    // handle as error
+    fprintf(stderr, "Error: subprocess crashed, was interrupted, or did not exit normally.\n");
+    exit(4);
+  }
+
+  if (WEXITSTATUS(wstatus) != 0) {
+    // subprocess returned a non-zero exit code
+    // if following standard UNIX conventions, this is also an error
+    fprintf(stderr, "Error: subprocess returned error.\n");
+    exit(5);
+  }
+
+  int64_t temparr[(end - begin) + 1];
+  
   // merge them
-  merge(arr, begin, end / 2, end, temparr);
+  merge(arr, begin, (end + begin) / 2 + 1, end, temparr);
+
+  for (size_t i = begin; i < end; i++) {
+    arr[i] = temparr[i];
+  }
 
 }
 
@@ -78,14 +117,17 @@ int main(int argc, char **argv) {
   // TODO: open the file
   int fd = open(filename, O_RDWR);
   if (fd < 0) {
-    // report an error cause file couldn't be opened
+    fprintf(stderr, "Error: file could not be opened.\n");
+    return -1;
   }
 
   // TODO: use fstat to determine the size of the file
   struct stat statbuf;
   int rc = fstat(fd, &statbuf);
   if (rc != 0) {
-    // report fstat error
+    fprintf(stderr, "Error: fstat.\n");
+    close(fd);
+    return 1;
   }
   size_t file_size_in_bytes = statbuf.st_size;
 
@@ -93,12 +135,18 @@ int main(int argc, char **argv) {
   int64_t *data = mmap(NULL, file_size_in_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
   if (data == MAP_FAILED) {
-    // report mmap error
+    fprintf(stderr, "Error: mmap error.\n");
+    close(fd);
+    return 1;
   }
 
   // TODO: sort the data!
+  merge_sort(data, 0, (file_size_in_bytes / 8) - 1, threshold);
 
   // TODO: unmap and close the file
+  munmap(NULL, file_size_in_bytes);
+  close(fd);
 
   // TODO: exit with a 0 exit code if sort was successful
+  return 0;
 }
