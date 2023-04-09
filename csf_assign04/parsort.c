@@ -102,7 +102,7 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
   int64_t *temparr = malloc(sizeof(uint64_t) * ((end - begin) + 1));
   
   // merge them
-  merge(arr, begin, mid + 1, end, temparr);
+  merge(arr, begin, mid + 1, end + 1, temparr);
 
   int j = 0;
   for (size_t i = begin; i <= end; i++) {
