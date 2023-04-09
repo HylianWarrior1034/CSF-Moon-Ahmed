@@ -76,10 +76,25 @@ int main(int argc, char **argv) {
     /* TODO: report an error (threshold value is invalid) */;
 
   // TODO: open the file
+  int fd = open(filename, O_RDWR);
+  if (fd < 0) {
+    // report an error cause file couldn't be opened
+  }
 
   // TODO: use fstat to determine the size of the file
+  struct stat statbuf;
+  int rc = fstat(fd, &statbuf);
+  if (rc != 0) {
+    // report fstat error
+  }
+  size_t file_size_in_bytes = statbuf.st_size;
 
   // TODO: map the file into memory using mmap
+  int64_t *data = mmap(NULL, file_size_in_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+
+  if (data == MAP_FAILED) {
+    // report mmap error
+  }
 
   // TODO: sort the data!
 
