@@ -13,8 +13,10 @@
 int compare_i64(const void *left, const void *right) {
   if (*(int64_t *) left > *(int64_t *) right) {
     return 1;
-  } else {
+  } else if (*(int64_t *) left < *(int64_t *) right) {
     return -1;
+  } else {
+    return 0;
   }
 }
 
@@ -59,7 +61,7 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
   // TODO: Implement
   size_t mid = (end + begin) / 2;
   if (end - begin + 1 <= threshold) {
-    qsort(&arr[begin], end - begin + 1, sizeof(int64_t), compare_i64); // not sure what to put for the comparison function
+    qsort(arr + begin, end - begin, sizeof(int64_t), compare_i64); // not sure what to put for the comparison function
     return;
   }
   else {
@@ -73,7 +75,7 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
       merge_sort(arr, begin, mid, threshold); // child
       exit(0);
     } else {
-      merge_sort(arr, mid + 1, end, threshold); // parent
+      merge_sort(arr, mid, end, threshold); // parent
     }
   }
 
@@ -99,13 +101,13 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
     exit(5);
   }
 
-  int64_t *temparr = malloc(sizeof(uint64_t) * ((end - begin) + 1));
+  int64_t *temparr = malloc(sizeof(uint64_t) * (end - begin));
   
   // merge them
-  merge(arr, begin, mid + 1, end + 1, temparr);
+  merge(arr, begin, mid, end, temparr);
 
   int j = 0;
-  for (size_t i = begin; i <= end; i++) {
+  for (size_t i = begin; i < end; i++) {
     arr[i] = temparr[j++];
   }
 
@@ -146,19 +148,27 @@ int main(int argc, char **argv) {
 
   // TODO: map the file into memory using mmap
   int64_t *data = mmap(NULL, file_size_in_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-
+  int64_t closestat = close(fd);
+  
   if (data == MAP_FAILED) {
     fprintf(stderr, "Error: mmap error.\n");
-    close(fd);
+    return 1;
+  }
+
+  if (closestat != 0) {
+    fprintf(stderr, "Error: failed to close the file\n");
     return 1;
   }
 
   // TODO: sort the data!
-  merge_sort(data, 0, (file_size_in_bytes / 8) - 1, threshold);
+  merge_sort(data, 0, (file_size_in_bytes / sizeof(int64_t)), threshold);
 
   // TODO: unmap and close the file
-  munmap(NULL, file_size_in_bytes);
-  close(fd);
+  int64_t unmap = munmap(data, file_size_in_bytes);
+  if (unmap != 0) {
+    fprintf(stderr, "Error: faliture to unmap the data\n");
+    return 1;
+  }
 
   // TODO: exit with a 0 exit code if sort was successful
   return 0;
