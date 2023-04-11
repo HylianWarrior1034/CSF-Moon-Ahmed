@@ -20,16 +20,6 @@ int compare_i64(const void *left, const void *right) {
   }
 }
 
-/*
-int compare_i64(const void *a, const void *b)
-{
-    const int64_t *ia = (const int64_t *)a; // casting pointer types 
-    const int64_t *ib = (const int64_t *)b;
-    return *ia  - *ib; 
-}
-*/
-
-
 // Merge the elements in the sorted ranges [begin, mid) and [mid, end),
 // copying the result into temparr.
 void merge(int64_t *arr, size_t begin, size_t mid, size_t end, int64_t *temparr) {
@@ -60,7 +50,7 @@ void merge(int64_t *arr, size_t begin, size_t mid, size_t end, int64_t *temparr)
 void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
   // TODO: Implement
   size_t mid = (end + begin) / 2;
-  if (end - begin + 1 <= threshold) {
+  if (end - begin <= threshold) {
     qsort(arr + begin, end - begin, sizeof(int64_t), compare_i64); // not sure what to put for the comparison function
     return;
   }
@@ -70,45 +60,45 @@ void merge_sort(int64_t *arr, size_t begin, size_t end, size_t threshold) {
 
     if (pid == -1) {
       fprintf(stderr, "Error: new fork could not open.\n");
-      exit(2);
+      exit(8);
     }else if (pid == 0) {
       merge_sort(arr, begin, mid, threshold); // child
       exit(0);
     } else {
       merge_sort(arr, mid, end, threshold); // parent
     }
-  }
 
-  int wstatus;
-  // blocks until the process indentified by pid_to_wait_for completes
-  pid_t actual_pid = waitpid(0, &wstatus, 0);
-  if (actual_pid == -1) {
-    fprintf(stderr, "Error: waitpid failure.\n");
-    exit(3);
-  }
+    int wstatus;
+    // blocks until the process indentified by pid_to_wait_for completes
+    pid_t actual_pid = waitpid(pid, &wstatus, 0);
 
-  if (!WIFEXITED(wstatus)) {
-    // subprocess crashed, was interrupted, or did not exit normally
-    // handle as error
-    fprintf(stderr, "Error: subprocess crashed, was interrupted, or did not exit normally.\n");
-    exit(4);
-  }
+    if (actual_pid == -1) {
+      fprintf(stderr, "Error: waitpid failure.\n");
+      exit(9);
+    }
 
-  if (WEXITSTATUS(wstatus) != 0) {
-    // subprocess returned a non-zero exit code
-    // if following standard UNIX conventions, this is also an error
-    fprintf(stderr, "Error: subprocess returned error.\n");
-    exit(5);
-  }
+    if (!WIFEXITED(wstatus)) {
+      // subprocess crashed, was interrupted, or did not exit normally
+      // handle as error
+      fprintf(stderr, "Error: subprocess crashed, was interrupted, or did not exit normally.\n");
+      exit(10);
+    }
 
-  int64_t *temparr = malloc(sizeof(uint64_t) * (end - begin));
+    if (WEXITSTATUS(wstatus) != 0) {
+      // subprocess returned a non-zero exit code
+      // if following standard UNIX conventions, this is also an error
+      fprintf(stderr, "Error: subprocess returned error.\n");
+      exit(11);
+    }
+  }
   
+  int64_t *temparr = malloc(sizeof(uint64_t) * (end - begin));
+
   // merge them
   merge(arr, begin, mid, end, temparr);
 
-  int j = 0;
   for (size_t i = begin; i < end; i++) {
-    arr[i] = temparr[j++];
+    arr[i] = temparr[i - begin];
   }
 
   free(temparr);
@@ -126,23 +116,26 @@ int main(int argc, char **argv) {
   const char *filename = argv[1];
   char *end;
   size_t threshold = (size_t) strtoul(argv[2], &end, 10);
-  if (end != argv[2] + strlen(argv[2]))
-    /* TODO: report an error (threshold value is invalid) */;
+  if (end != argv[2] + strlen(argv[2])) {
+    fprintf(stderr, "Error: invalid threshold.\n");
+    return 2;
+  }
 
   // TODO: open the file
   int fd = open(filename, O_RDWR);
   if (fd < 0) {
     fprintf(stderr, "Error: file could not be opened.\n");
-    return -1;
+    close(fd);
+    return 3;
   }
 
   // TODO: use fstat to determine the size of the file
   struct stat statbuf;
   int rc = fstat(fd, &statbuf);
   if (rc != 0) {
-    fprintf(stderr, "Error: fstat.\n");
+    fprintf(stderr, "Error: fstat error.\n");
     close(fd);
-    return 1;
+    return 4;
   }
   size_t file_size_in_bytes = statbuf.st_size;
 
@@ -152,12 +145,12 @@ int main(int argc, char **argv) {
   
   if (data == MAP_FAILED) {
     fprintf(stderr, "Error: mmap error.\n");
-    return 1;
+    return 5;
   }
 
   if (closestat != 0) {
     fprintf(stderr, "Error: failed to close the file\n");
-    return 1;
+    return 6;
   }
 
   // TODO: sort the data!
@@ -167,7 +160,7 @@ int main(int argc, char **argv) {
   int64_t unmap = munmap(data, file_size_in_bytes);
   if (unmap != 0) {
     fprintf(stderr, "Error: faliture to unmap the data\n");
-    return 1;
+    return 7;
   }
 
   // TODO: exit with a 0 exit code if sort was successful
