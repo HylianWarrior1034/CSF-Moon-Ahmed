@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
   if (!conn.send(msg))
   {
-    std::cerr << "Error: Could not send messge.\n";
+    std::cerr << "Error: " << msg.data << std::endl;
     return 2;
   }
 
@@ -39,18 +39,18 @@ int main(int argc, char **argv)
 
   if (msg.tag != TAG_OK)
   {
-    std::cerr << "Error: server denied receiver login.\n";
+    std::cerr << "Error: " << msg.data << std::endl;
     return 3;
   }
 
   // TODO: connect to server
 
   msg.tag = TAG_JOIN;
-  msg.data = room_name
+  msg.data = room_name;
 
-      if (!conn.send(msg))
+  if (!conn.send(msg))
   {
-    std::cerr << "Error: Could not send messge.\n";
+    std::cerr << "Error: " << msg.data << std::endl;
     return 2;
   }
 
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 
   if (msg.tag != TAG_OK)
   {
-    std::cerr << "Error: server denied receiver login.\n";
+    std::cerr << "Error: " << msg.data << std::endl;
     return 3;
   }
 
@@ -77,10 +77,7 @@ int main(int argc, char **argv)
       std::getline(ss, room, " ");
       std::getline(ss, sender, " ");
       std::getline(ss, msg_text, " ");
-      if (room == room_name)
-      {
-        std::cout << sender << ": " << msg_text << std::endl;
-      }
+      std::cout << sender << ": " << msg_text << std::endl;
     }
   }
 
