@@ -92,6 +92,7 @@ bool Connection::receive(Message &msg)
   }
   else
   {
+    std::string message(buf);
     int index = message.find(":");        // parse the message
     msg.data = message.substr(index + 1); // before colon is tag
     msg.tag = message.substr(0, index);   // after colon is message
