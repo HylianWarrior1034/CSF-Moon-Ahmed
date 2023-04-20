@@ -70,14 +70,31 @@ int main(int argc, char **argv)
 
   while (1)
   {
-    conn.receive(msg);
-    if (msg.tag == TAG_DELIVERY)
+    if (!conn.receive(msg))
     {
-      std::stringstream ss(msg.data);
-      std::getline(ss, room, " ");
-      std::getline(ss, sender, " ");
-      std::getline(ss, msg_text, " ");
-      std::cout << sender << ": " << msg_text << std::endl;
+      if (conn.get_last_result() == Connection::EOF_OR_ERROR)
+      {
+        exit(-1);
+      }
+      else
+      {
+        std::stderr << "message invalid format" << std::endl;
+      }
+    }
+    else
+    {
+      if (msg.tag == TAG_DELIVERY)
+      {
+        std::stringstream ss(msg.data);
+        std::getline(ss, room, ":");
+        std::getline(ss, sender, ":");
+        std::getline(ss, msg_text, ":");
+        std::cout << sender << ": " << msg_text << std::endl;
+      }
+      else
+      {
+        std::stderr << "unexpected server response tag" << std::endl;
+      }
     }
   }
 
