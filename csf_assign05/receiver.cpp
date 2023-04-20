@@ -39,6 +39,7 @@ int main(int argc, char **argv)
   else if (response_login.tag != TAG_OK)
   {
     std::cerr << "unexpected server response" << std::endl;
+    return 4;
   }
 
   // TODO: connect to server
@@ -59,6 +60,7 @@ int main(int argc, char **argv)
   else if (response_join.tag != TAG_OK)
   {
     std::cerr << "unexpected server response" << std::endl;
+    return 4;
   }
 
   // TODO: send rlogin and join messages (expect a response from
@@ -74,7 +76,7 @@ int main(int argc, char **argv)
     {
       if (conn.get_last_result() == Connection::EOF_OR_ERROR)
       {
-        exit(-1);
+        return -1;
       }
       else
       {
@@ -89,7 +91,11 @@ int main(int argc, char **argv)
         std::getline(ss, room, ':');
         std::getline(ss, sender, ':');
         std::getline(ss, msg_text, ':');
-        std::cout << sender << ": " << msg_text << std::endl;
+
+        if (room == room_name)
+        {
+          std::cout << sender << ": " << msg_text << std::endl;
+        }
       }
       else
       {
