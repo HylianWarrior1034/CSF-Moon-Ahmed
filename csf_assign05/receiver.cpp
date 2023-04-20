@@ -78,7 +78,7 @@ int main(int argc, char **argv)
       }
       else
       {
-        std::stderr << "message invalid format" << std::endl;
+        std::cerr << "message invalid format" << std::endl;
       }
     }
     else
@@ -86,14 +86,14 @@ int main(int argc, char **argv)
       if (msg.tag == TAG_DELIVERY)
       {
         std::stringstream ss(msg.data);
-        std::getline(ss, room, ":");
-        std::getline(ss, sender, ":");
-        std::getline(ss, msg_text, ":");
+        std::getline(ss, room, ':');
+        std::getline(ss, sender, ':');
+        std::getline(ss, msg_text, ':');
         std::cout << sender << ": " << msg_text << std::endl;
       }
       else
       {
-        std::stderr << "unexpected server response tag" << std::endl;
+        std::cerr << "unexpected server response tag" << std::endl;
       }
     }
   }
