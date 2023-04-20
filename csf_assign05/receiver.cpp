@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
   conn.receive(msg);
 
-  if (msg.tag == TAG_ERROR)
+  if (msg.tag == TAG_ERR)
   {
     std::cerr << "Error: " << msg.data << std::endl;
     return 3;
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
   conn.send(msg);
   conn.receive(msg);
 
-  if (msg.tag == TAG_ERROR)
+  if (msg.tag == TAG_ERR)
   {
     std::cerr << "Error: " << msg.data << std::endl;
     return 3;
