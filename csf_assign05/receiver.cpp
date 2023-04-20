@@ -7,8 +7,10 @@
 #include "connection.h"
 #include "client_util.h"
 
-int main(int argc, char **argv) {
-  if (argc != 5) {
+int main(int argc, char **argv)
+{
+  if (argc != 5)
+  {
     std::cerr << "Usage: ./receiver [server_address] [port] [username] [room]\n";
     return 1;
   }
@@ -20,14 +22,63 @@ int main(int argc, char **argv) {
 
   Connection conn;
 
+  conn.connect(server_hostname, server_port);
+
+  Message msg;
+  msg.tag = TAG_RLOGIN;
+  msg.data = username;
+
+  if (!conn.send(msg))
+  {
+    std::cerr << "Error: Could not send messge.\n";
+    return 2;
+  }
+
+  conn.receive(msg);
+
+  if (msg.tag != TAG_OK)
+  {
+    std::cerr << "Error: server denied receiver login.\n";
+    return 3;
+  }
+
   // TODO: connect to server
+
+  msg.tag = TAG_JOIN;
+  msg.data = room_name
+
+      if (!conn.send(msg))
+  {
+    std::cerr << "Error: Could not send messge.\n";
+    return 2;
+  }
+
+  conn.receive(msg);
+
+  if (msg.tag != TAG_OK)
+  {
+    std::cerr << "Error: server denied receiver login.\n";
+    return 3;
+  }
 
   // TODO: send rlogin and join messages (expect a response from
   //       the server for each one)
+  std::string room;
+  std::string sender;
+  std::string msg_text;
+
+  while (1)
+  {
+    conn.receive(msg);
+    if (msg.tag == TAG_DELIVERY)
+    {
+      msg.data >> room >> sender >> msg_text;
+      std::cout << sender << ": " << msg_text << std::endl;
+    }
+  }
 
   // TODO: loop waiting for messages from server
   //       (which should be tagged with TAG_DELIVERY)
-
 
   return 0;
 }
