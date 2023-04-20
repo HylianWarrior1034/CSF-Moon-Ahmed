@@ -49,7 +49,7 @@ int main(int argc, char **argv)
   conn.send(msg);
 
   Message response_join;
-  conn.receive(respose_join);
+  conn.receive(response_join);
 
   if (response_join.tag == TAG_ERR)
   {
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
         std::stringstream ss(response.data);
         std::getline(ss, room, ':');
         std::getline(ss, sender, ':');
-        std::getline(ss, response_text, ':');
+        std::getline(ss, msg_text, ':');
         std::cout << sender << ": " << msg_text << std::endl;
       }
       else
