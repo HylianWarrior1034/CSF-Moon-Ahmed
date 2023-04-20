@@ -78,6 +78,9 @@ int main(int argc, char **argv)
       getline(ss, sender, ' ');
       getline(ss, msg_text, ' ');
       std::cout << sender << ": " << msg_text << std::endl;
+    } else {
+      std::cerr << "Error: Delivery not received.";
+      return 4;
     }
   }
 

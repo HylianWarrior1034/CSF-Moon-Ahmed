@@ -32,11 +32,13 @@ int main(int argc, char **argv) {
 
   if (!conn.send(msg)) {
     std::cerr << "Error: sender login failed.";
+    return 5;
   }
 
   conn.receive(msg);
   if (msg.tag != TAG_OK) {
     std::cerr << "Error: server denied login attempt.";
+    return 5;
   }
 
   // TODO: loop reading commands from user, sending messages to
@@ -54,33 +56,39 @@ int main(int argc, char **argv) {
         msg.data = ltrim(line);
         if (!conn.send(msg)) {
           std::cerr << "Error: room join failed.";
+          return 6;
         }
 
         conn.receive(msg);
         if (msg.tag != TAG_OK) {
           std::cerr << "Error: error registering sender to room.";
+          return 6;
         }
       } else if (command.compare("/leave") == 0) {
         msg.tag = TAG_LEAVE;
         msg.data = "";
         if (!conn.send(msg)) {
           std::cerr << "Error: room leave failed.";
+          return 7;
         }
 
         conn.receive(msg);
         if (msg.tag != TAG_OK) {
           std::cerr << "Error: error de-registering sender from room.";
+          return 7;
         }
       } else if (command.compare("/quit") == 0) {
         msg.tag = TAG_QUIT;
         msg.data = "";
         if (!conn.send(msg)) {
           std::cerr << "Error: quit failed.";
+          return 8;
         }
 
         conn.receive(msg);
         if (msg.tag != TAG_OK) {
           std::cerr << "Error: error destroying connection.";
+          return 8;
         }
         loop_exit_case = true;
       } else {
@@ -91,10 +99,12 @@ int main(int argc, char **argv) {
       msg.data = line;
       if (!conn.send(msg)) {
         std::cerr << "Error: room join failed.";
+        return 9;
       }
       conn.receive(msg);
       if (msg.tag != TAG_OK) {
         std::cerr << "Error: error registering sender to room.";
+        return 9;
       }
     }
   }
