@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <stdexcept>
 #include "csapp.h"
@@ -72,7 +73,10 @@ int main(int argc, char **argv)
     conn.receive(msg);
     if (msg.tag == TAG_DELIVERY)
     {
-      msg.data >> room >> sender >> msg_text;
+      std::stringstream ss(msg.data);
+      std::getline(ss, room, " ");
+      std::getline(ss, sender, " ");
+      std::getline(ss, msg_text, " ");
       std::cout << sender << ": " << msg_text << std::endl;
     }
   }
