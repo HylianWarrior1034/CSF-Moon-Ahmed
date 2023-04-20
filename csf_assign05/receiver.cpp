@@ -94,9 +94,8 @@ int main(int argc, char **argv)
 
         if (room == room_name)
         {
-          std::cout << sender << ": " << msg_text << std::endl;
+          std::cout << sender << ": " << msg_text;
         }
-        f
       }
       else
       {
