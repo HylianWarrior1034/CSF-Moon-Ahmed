@@ -77,7 +77,10 @@ int main(int argc, char **argv)
       std::getline(ss, room, " ");
       std::getline(ss, sender, " ");
       std::getline(ss, msg_text, " ");
-      std::cout << sender << ": " << msg_text << std::endl;
+      if (room == room_name)
+      {
+        std::cout << sender << ": " << msg_text << std::endl;
+      }
     }
   }
 
