@@ -28,8 +28,8 @@ int main(int argc, char **argv)
   conn.connect(server_hostname, server_port);
 
   // TODO: send slogin message
-  Message msg(TAG_SLOGIN, username);
-  conn.send(msg);
+  Message login_message(TAG_SLOGIN, username);
+  conn.send(login_message);
 
   Message response_login;
   conn.receive(response_login);
@@ -50,82 +50,51 @@ int main(int argc, char **argv)
   while (!loop_exit_case)
   {
     std::string line;
-    getline(std::cin, line);
+    std::getline(std::cin, line);
+    Message send_message;
 
     if (line[0] == '/')
     {
-      std::string command = rtrim(line);
-      if (command.compare("/join") == 0)
+      if (line.substr(0, 5).compare("/join") == 0)
       {
-        msg.tag = TAG_JOIN;
-        msg.data = ltrim(line);
-        if (!conn.send(msg))
-        {
-          std::cerr << "Error: " << msg.data << std::endl;
-          return 6;
-        }
-
-        conn.receive(msg);
-        if (msg.tag != TAG_OK)
-        {
-          std::cerr << "Error: " << msg.data << std::endl;
-          return 6;
-        }
+        send_message.tag = TAG_JOIN;
+        send_message.data = line.substr(6);
       }
-      else if (command.compare("/leave") == 0)
+      else if (line.substr(0, 6).compare("/leave") == 0)
       {
-        msg.tag = TAG_LEAVE;
-        msg.data = "";
-        if (!conn.send(msg))
-        {
-          std::cerr << "Error: " << msg.data << std::endl;
-          return 7;
-        }
-
-        conn.receive(msg);
-        if (msg.tag != TAG_OK)
-        {
-          std::cerr << "Error: " << msg.data << std::endl;
-          return 7;
-        }
+        send_message.tag = TAG_LEAVE;
+        send_message.data = "";
       }
-      else if (command.compare("/quit") == 0)
+      else if (line.substr(0, 5).compare("/quit") == 0)
       {
-        msg.tag = TAG_QUIT;
-        msg.data = "";
-        if (!conn.send(msg))
-        {
-          std::cerr << "Error: " << msg.data << std::endl;
-          return 8;
-        }
-
-        conn.receive(msg);
-        if (msg.tag != TAG_OK)
-        {
-          std::cerr << "Error: " << msg.data << std::endl;
-          return 8;
-        }
+        send_message.tag = TAG_QUIT;
+        send_message.data = "";
         loop_exit_case = true;
       }
       else
       {
+        std::cerr << "Error: invalid command" << std::endl;
+        continue;
       }
     }
     else
     {
-      msg.tag = TAG_SENDALL;
-      msg.data = line;
-      if (!conn.send(msg))
-      {
-        std::cerr << "Error: " << msg.data << std::endl;
-        return 9;
-      }
-      conn.receive(msg);
-      if (msg.tag != TAG_OK)
-      {
-        std::cerr << "Error: " << msg.data << std::endl;
-        return 9;
-      }
+      send_message.tag = TAG_SENDALL;
+      send_message.data = line;
+    }
+
+    if (!conn.send(send_message))
+    {
+      std::cerr << "Error: " << "cannot send message." << std::endl;
+      return 6;
+    }
+
+    Message received_message;
+    conn.receive(received_message);
+    if (received_message.tag != TAG_OK)
+    {
+      std::cerr << "Error: " << received_message.data << std::endl;
+      return 7;
     }
   }
 

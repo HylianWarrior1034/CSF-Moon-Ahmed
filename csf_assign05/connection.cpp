@@ -28,6 +28,7 @@ void Connection::connect(const std::string &hostname, int port)
     std::cerr << "Could not connect to server" << std::endl;
     exit(1);
   }
+  m_fd = client_fd;
   // handle error if client_fd is -1 or -2
   rio_readinitb(&m_fdbuf, client_fd);
 }
@@ -64,7 +65,7 @@ bool Connection::send(const Message &msg)
   // make sure that m_last_result is set appropriately
 
   // make sure msg is formatted properly
-  std::string message = msg.tag + ":" + msg.data;
+  std::string message = msg.tag + ":" + msg.data + "\n";
   size_t length = message.length();
   ssize_t result = rio_writen(m_fd, message.c_str(), length);
   if (result != (ssize_t) length)
