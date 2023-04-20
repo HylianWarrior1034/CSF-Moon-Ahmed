@@ -48,7 +48,7 @@ int main(int argc, char **argv)
   msg.tag = TAG_JOIN;
   msg.data = room_name
 
-      if (!conn.send(msg))
+  if (!conn.send(msg))
   {
     std::cerr << "Error: Could not send messge.\n";
     return 2;
@@ -74,9 +74,9 @@ int main(int argc, char **argv)
     if (msg.tag == TAG_DELIVERY)
     {
       std::stringstream ss(msg.data);
-      std::getline(ss, room, " ");
-      std::getline(ss, sender, " ");
-      std::getline(ss, msg_text, " ");
+      getline(ss, room, ' ');
+      getline(ss, sender, ' ');
+      getline(ss, msg_text, ' ');
       std::cout << sender << ": " << msg_text << std::endl;
     }
   }
