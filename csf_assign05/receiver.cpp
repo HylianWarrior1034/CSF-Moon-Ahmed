@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
   if (response_login.tag == TAG_ERR)
   {
-    std::cerr << "Error: " << response_login.data << std::endl;
+    std::cerr << "Error: " << response_login.data;
     return 3;
   }
   else if (response_login.tag != TAG_OK)
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
   if (response_join.tag == TAG_ERR)
   {
-    std::cerr << "Error: " << response_join.data << std::endl;
+    std::cerr << "Error: " << response_join.data;
     return 3;
   }
   else if (response_join.tag != TAG_OK)
@@ -94,9 +94,8 @@ int main(int argc, char **argv)
 
         if (room == room_name)
         {
-          std::cout << sender << ": " << msg_text << std::endl;
+          std::cout << sender << ": " << msg_text;
         }
-        f
       }
       else
       {
