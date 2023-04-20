@@ -96,6 +96,7 @@ int main(int argc, char **argv)
         {
           std::cout << sender << ": " << msg_text << std::endl;
         }
+        f
       }
       else
       {
