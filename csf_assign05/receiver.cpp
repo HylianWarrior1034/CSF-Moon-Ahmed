@@ -33,12 +33,12 @@ int main(int argc, char **argv)
 
   if (response_login.tag == TAG_ERR)
   {
-    fprintf(stderr, "Error: %s", response_login.data.c_str());
+    std::cerr << "Error: " << response_login.data;
     return 3;
   }
   else if (response_login.tag != TAG_OK)
   {
-    fprintf(stderr, "%s\n", "unexpected server response");
+    std::cerr << "unexpected server response" << std::endl;
     return 4;
   }
 
@@ -54,12 +54,12 @@ int main(int argc, char **argv)
 
   if (response_join.tag == TAG_ERR)
   {
-    fprintf(stderr, "Error: %s", response_join.data.c_str());
+    std::cerr << "Error: " << response_join.data;
     return 3;
   }
   else if (response_join.tag != TAG_OK)
   {
-    fprintf(stderr, "%s\n", "unexpected server response");
+    std::cerr << "unexpected server response" << std::endl;
     return 4;
   }
 
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
       }
       else
       {
-        fprintf(stderr, "%s\n", "message invalid format");
+        std::cerr << "message invalid format" << std::endl;
       }
     }
     else
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
       }
       else
       {
-        fprintf(stderr, "%s\n", "unexpected server response tag");
+        std::cerr << "unexpected server response tag" << std::endl;
       }
     }
   }
