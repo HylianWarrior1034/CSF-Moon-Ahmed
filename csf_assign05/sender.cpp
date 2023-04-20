@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   conn.receive(response_login);
   if (response_login.tag == TAG_ERR)
   {
-    std::cerr << "Error: " << response_login.data << std::endl;
+    std::cerr << response_login.data << std::endl;
     return 3;
   }
   else if (response_login.tag != TAG_OK)
@@ -85,16 +85,34 @@ int main(int argc, char **argv)
 
     if (!conn.send(send_message))
     {
-      std::cerr << "Error: " << "cannot send message." << std::endl;
+      std::cerr << "Error: cannot send message." << std::endl;
       return 6;
     }
 
     Message received_message;
-    conn.receive(received_message);
-    if (received_message.tag != TAG_OK)
+    if (conn.receive(received_message))
     {
-      std::cerr << "Error: " << received_message.data << std::endl;
-      return 7;
+      if (response.tag == TAG_ERR)
+      {
+        std::cerr << received_message.data;
+      }
+      else if (received_message.tag != TAG_OK)
+      {
+        std::cerr << "unexpected server response tag";
+        return 7;
+      }
+    }
+    else
+    {
+      if (!conn.is_open())
+      {
+        std::cerr << "could not receive due to EOF or Error";
+        return 8;
+      }
+      else
+      {
+        std::cerr << "could not receive due to invalid format";
+      }
     }
   }
 
