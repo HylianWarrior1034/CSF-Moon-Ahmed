@@ -7,8 +7,10 @@
 #include "connection.h"
 #include "client_util.h"
 
-int main(int argc, char **argv) {
-  if (argc != 4) {
+int main(int argc, char **argv)
+{
+  if (argc != 4)
+  {
     std::cerr << "Usage: ./sender [server_address] [port] [username]\n";
     return 1;
   }
@@ -30,79 +32,98 @@ int main(int argc, char **argv) {
   msg.tag = TAG_SLOGIN;
   msg.data = username;
 
-  if (!conn.send(msg)) {
-    std::cerr << "Error: sender login failed.";
-    return 5;
-  }
-
+  conn.send(msg);
   conn.receive(msg);
-  if (msg.tag != TAG_OK) {
-    std::cerr << "Error: server denied login attempt.";
-    return 5;
+  if (msg.tag == TAG_ERROR)
+  {
+    std::cerr << "Error: " << msg.data << std::endl;
+    return 3;
+  }
+  else if (msg.tag != TAG_OK)
+  {
+    std::cerr << "unexpected server response" << std::endl;
   }
 
   // TODO: loop reading commands from user, sending messages to
   //       server as appropriate
   bool loop_exit_case = false;
 
-  while (!loop_exit_case) {
+  while (!loop_exit_case)
+  {
     std::string line;
     getline(std::cin, line);
 
-    if (line[0] == '/') {
+    if (line[0] == '/')
+    {
       std::string command = rtrim(line);
-      if (command.compare("/join") == 0) {
+      if (command.compare("/join") == 0)
+      {
         msg.tag = TAG_JOIN;
         msg.data = ltrim(line);
-        if (!conn.send(msg)) {
+        if (!conn.send(msg))
+        {
           std::cerr << "Error: " << msg.data << std::endl;
           return 6;
         }
 
         conn.receive(msg);
-        if (msg.tag != TAG_OK) {
+        if (msg.tag != TAG_OK)
+        {
           std::cerr << "Error: " << msg.data << std::endl;
           return 6;
         }
-      } else if (command.compare("/leave") == 0) {
+      }
+      else if (command.compare("/leave") == 0)
+      {
         msg.tag = TAG_LEAVE;
         msg.data = "";
-        if (!conn.send(msg)) {
+        if (!conn.send(msg))
+        {
           std::cerr << "Error: " << msg.data << std::endl;
           return 7;
         }
 
         conn.receive(msg);
-        if (msg.tag != TAG_OK) {
+        if (msg.tag != TAG_OK)
+        {
           std::cerr << "Error: " << msg.data << std::endl;
           return 7;
         }
-      } else if (command.compare("/quit") == 0) {
+      }
+      else if (command.compare("/quit") == 0)
+      {
         msg.tag = TAG_QUIT;
         msg.data = "";
-        if (!conn.send(msg)) {
+        if (!conn.send(msg))
+        {
           std::cerr << "Error: " << msg.data << std::endl;
           return 8;
         }
 
         conn.receive(msg);
-        if (msg.tag != TAG_OK) {
+        if (msg.tag != TAG_OK)
+        {
           std::cerr << "Error: " << msg.data << std::endl;
           return 8;
         }
         loop_exit_case = true;
-      } else {
-        
       }
-    } else {
+      else
+      {
+      }
+    }
+    else
+    {
       msg.tag = TAG_SENDALL;
       msg.data = line;
-      if (!conn.send(msg)) {
+      if (!conn.send(msg))
+      {
         std::cerr << "Error: " << msg.data << std::endl;
         return 9;
       }
       conn.receive(msg);
-      if (msg.tag != TAG_OK) {
+      if (msg.tag != TAG_OK)
+      {
         std::cerr << "Error: " << msg.data << std::endl;
         return 9;
       }

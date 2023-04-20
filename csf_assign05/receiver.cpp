@@ -29,18 +29,18 @@ int main(int argc, char **argv)
   msg.tag = TAG_RLOGIN;
   msg.data = username;
 
-  if (!conn.send(msg))
-  {
-    std::cerr << "Error: " << msg.data << std::endl;
-    return 2;
-  }
+  conn.send(msg);
 
   conn.receive(msg);
 
-  if (msg.tag != TAG_OK)
+  if (msg.tag == TAG_ERROR)
   {
     std::cerr << "Error: " << msg.data << std::endl;
     return 3;
+  }
+  else if (msg.tag != TAG_OK)
+  {
+    std::cerr << "unexpected server response" << std::endl;
   }
 
   // TODO: connect to server
@@ -48,18 +48,17 @@ int main(int argc, char **argv)
   msg.tag = TAG_JOIN;
   msg.data = room_name;
 
-  if (!conn.send(msg))
-  {
-    std::cerr << "Error: " << msg.data << std::endl;
-    return 2;
-  }
-
+  conn.send(msg);
   conn.receive(msg);
 
-  if (msg.tag != TAG_OK)
+  if (msg.tag == TAG_ERROR)
   {
     std::cerr << "Error: " << msg.data << std::endl;
     return 3;
+  }
+  else if (msg.tag != TAG_OK)
+  {
+    std::cerr << "unexpected server response" << std::endl;
   }
 
   // TODO: send rlogin and join messages (expect a response from
