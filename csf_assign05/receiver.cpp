@@ -46,7 +46,7 @@ int main(int argc, char **argv)
   // TODO: connect to server
 
   msg.tag = TAG_JOIN;
-  msg.data = room_name
+  msg.data = room_name;
 
   if (!conn.send(msg))
   {
