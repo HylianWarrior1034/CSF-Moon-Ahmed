@@ -28,18 +28,17 @@ int main(int argc, char **argv)
   conn.connect(server_hostname, server_port);
 
   // TODO: send slogin message
-  Message msg;
-  msg.tag = TAG_SLOGIN;
-  msg.data = username;
-
+  Message msg(TAG_SLOGIN, username);
   conn.send(msg);
-  conn.receive(msg);
-  if (msg.tag == TAG_ERR)
+
+  Message response_login;
+  conn.receive(response_login);
+  if (response_login.tag == TAG_ERR)
   {
-    std::cerr << "Error: " << msg.data << std::endl;
+    std::cerr << "Error: " << response_login.data << std::endl;
     return 3;
   }
-  else if (msg.tag != TAG_OK)
+  else if (response_login.tag != TAG_OK)
   {
     std::cerr << "unexpected server response" << std::endl;
   }

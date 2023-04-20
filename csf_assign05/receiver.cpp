@@ -25,20 +25,18 @@ int main(int argc, char **argv)
 
   conn.connect(server_hostname, server_port);
 
-  Message msg;
-  msg.tag = TAG_RLOGIN;
-  msg.data = username;
-
+  Message msg(TAG_RLOGIN, username);
   conn.send(msg);
 
-  conn.receive(msg);
+  Message response_login;
+  conn.receive(response_login);
 
-  if (msg.tag == TAG_ERR)
+  if (response_login.tag == TAG_ERR)
   {
-    std::cerr << "Error: " << msg.data << std::endl;
+    std::cerr << "Error: " << response_login.data << std::endl;
     return 3;
   }
-  else if (msg.tag != TAG_OK)
+  else if (response_login.tag != TAG_OK)
   {
     std::cerr << "unexpected server response" << std::endl;
   }
@@ -49,14 +47,16 @@ int main(int argc, char **argv)
   msg.data = room_name;
 
   conn.send(msg);
-  conn.receive(msg);
 
-  if (msg.tag == TAG_ERR)
+  Message response_join;
+  conn.receive(respose_join);
+
+  if (response_join.tag == TAG_ERR)
   {
-    std::cerr << "Error: " << msg.data << std::endl;
+    std::cerr << "Error: " << response_join.data << std::endl;
     return 3;
   }
-  else if (msg.tag != TAG_OK)
+  else if (response_join.tag != TAG_OK)
   {
     std::cerr << "unexpected server response" << std::endl;
   }
@@ -69,7 +69,8 @@ int main(int argc, char **argv)
 
   while (1)
   {
-    if (!conn.receive(msg))
+    Message response;
+    if (!conn.receive(response))
     {
       if (conn.get_last_result() == Connection::EOF_OR_ERROR)
       {
@@ -82,12 +83,12 @@ int main(int argc, char **argv)
     }
     else
     {
-      if (msg.tag == TAG_DELIVERY)
+      if (response.tag == TAG_DELIVERY)
       {
-        std::stringstream ss(msg.data);
+        std::stringstream ss(response.data);
         std::getline(ss, room, ':');
         std::getline(ss, sender, ':');
-        std::getline(ss, msg_text, ':');
+        std::getline(ss, response_text, ':');
         std::cout << sender << ": " << msg_text << std::endl;
       }
       else
