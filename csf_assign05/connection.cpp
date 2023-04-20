@@ -65,16 +65,13 @@ bool Connection::send(const Message &msg)
 
   // make sure msg is formatted properly
   ssize_t result = rio_writen(m_fd, msg.data.c_str(), msg.data.length());
-  if (result == -1)
+  if (result != (ssize_t)msg.data.length())
   {
     m_last_result = EOF_OR_ERROR;
     return false;
   }
-  else
-  {
-    m_last_result = SUCCESS;
-    return true;
-  }
+  m_last_result = SUCCESS;
+  return true;
 }
 
 bool Connection::receive(Message &msg)
