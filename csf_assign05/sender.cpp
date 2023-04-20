@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     Message received_message;
     if (conn.receive(received_message))
     {
-      if (response.tag == TAG_ERR)
+      if (received_message.tag == TAG_ERR)
       {
         std::cerr << received_message.data;
       }
