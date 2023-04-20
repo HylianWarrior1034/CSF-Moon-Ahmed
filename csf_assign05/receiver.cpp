@@ -23,22 +23,22 @@ int main(int argc, char **argv)
 
   Connection conn;
 
-  conn.connect(server_hostname, server_port);
+  conn.connect(server_hostname, server_port); // connect to server
 
   Message msg(TAG_RLOGIN, username);
-  conn.send(msg);
+  conn.send(msg); // send receiver logged in
 
   Message response_login;
-  conn.receive(response_login);
+  conn.receive(response_login); // receive server message
 
-  if (response_login.tag == TAG_ERR)
+  if (response_login.tag == TAG_ERR) // if received message tag was err
   {
-    std::cerr << response_login.data;
+    std::cerr << response_login.data; // print error message and leave
     return 3;
   }
-  else if (response_login.tag != TAG_OK)
+  else if (response_login.tag != TAG_OK) // if tag was anything other than ok,
   {
-    std::cerr << "unexpected server response" << std::endl;
+    std::cerr << "unexpected server response" << std::endl; // handle it then leave
     return 4;
   }
 
@@ -47,12 +47,12 @@ int main(int argc, char **argv)
   msg.tag = TAG_JOIN;
   msg.data = room_name;
 
-  conn.send(msg);
+  conn.send(msg); // send room name to server
 
   Message response_join;
   conn.receive(response_join);
 
-  if (response_join.tag == TAG_ERR)
+  if (response_join.tag == TAG_ERR) // same error handling as above
   {
     std::cerr << response_join.data;
     return 3;
@@ -72,27 +72,27 @@ int main(int argc, char **argv)
   while (1)
   {
     Message response;
-    if (!conn.receive(response))
+    if (!conn.receive(response)) // if receive from server fails
     {
-      if (conn.get_last_result() == Connection::EOF_OR_ERROR)
+      if (conn.get_last_result() == Connection::EOF_OR_ERROR) // if connection is closed, print EOF or ERROR
       {
         return -1;
       }
       else
       {
-        std::cerr << "message invalid format" << std::endl;
+        std::cerr << "message invalid format" << std::endl; // else, the message is in invalid format
       }
     }
     else
     {
-      if (response.tag == TAG_DELIVERY)
+      if (response.tag == TAG_DELIVERY) // if message contains right tag,
       {
         std::stringstream ss(response.data);
         std::getline(ss, room, ':');
         std::getline(ss, sender, ':');
         std::getline(ss, msg_text, ':');
 
-        if (room == room_name)
+        if (room == room_name) // parse the message and see if message room matches receiver room
         {
           std::cout << sender << ": " << msg_text;
         }
@@ -103,9 +103,6 @@ int main(int argc, char **argv)
       }
     }
   }
-
-  // TODO: loop waiting for messages from server
-  //       (which should be tagged with TAG_DELIVERY)
 
   return 0;
 }
