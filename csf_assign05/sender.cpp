@@ -23,14 +23,15 @@ int main(int argc, char **argv)
   server_port = std::stoi(argv[2]);
   username = argv[3];
 
-  // TODO: connect to server
+  // create Connection object and connect to server
   Connection conn;
   conn.connect(server_hostname, server_port);
 
-  // TODO: send slogin message
+  // send a slogin message to server
   Message login_message(TAG_SLOGIN, username);
   conn.send(login_message);
 
+  // retrieve response fro server
   Message response_login;
   conn.receive(response_login);
   if (response_login.tag == TAG_ERR)
@@ -43,52 +44,60 @@ int main(int argc, char **argv)
     std::cerr << "unexpected server response" << std::endl;
   }
 
-  // TODO: loop reading commands from user, sending messages to
-  //       server as appropriate
+  // start main sender loop
   bool loop_exit_case = false;
 
   while (!loop_exit_case)
   {
+    // read user input
     std::string line;
     std::getline(std::cin, line);
     Message send_message;
 
+    // check if user inputted a command (i.e. something beginning with '/')
     if (line[0] == '/')
     {
       if (line.substr(0, 5).compare("/join") == 0)
       {
+        // parse join command if user inputted "/join"
         send_message.tag = TAG_JOIN;
         send_message.data = line.substr(6);
       }
       else if (line.substr(0, 6).compare("/leave") == 0)
       {
+        // set tag to "leave" if user inputted "/leave"
         send_message.tag = TAG_LEAVE;
         send_message.data = "";
       }
       else if (line.substr(0, 5).compare("/quit") == 0)
       {
+        // set tag to "quit" if user inputted "/quit"
         send_message.tag = TAG_QUIT;
         send_message.data = "";
-        loop_exit_case = true;
+        loop_exit_case = true; // exit from loop
       }
       else
       {
+        // handle error if the command is invalid
         std::cerr << "Error: invalid command" << std::endl;
         continue;
       }
     }
     else
     {
+      // if user did not input a command, their inputted text will be sent witht the tage "sendall"
       send_message.tag = TAG_SENDALL;
       send_message.data = line;
     }
 
+    // handle error if send fails
     if (!conn.send(send_message))
     {
       std::cerr << "Error: cannot send message." << std::endl;
       return 6;
     }
 
+    // retreive ok response from server
     Message received_message;
     if (conn.receive(received_message))
     {
