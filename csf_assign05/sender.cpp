@@ -35,12 +35,13 @@ int main(int argc, char **argv)
   conn.receive(response_login);
   if (response_login.tag == TAG_ERR)
   {
-    std::cerr << "Error: " << response_login.data << std::endl;
+    fprint(stderr, "Error: %s", response_login.data.c_str());
     return 3;
   }
   else if (response_login.tag != TAG_OK)
   {
-    std::cerr << "unexpected server response" << std::endl;
+    fprintf(stderr, "%s\n", "unexpected server response");
+    return 4;
   }
 
   // TODO: loop reading commands from user, sending messages to
@@ -73,7 +74,7 @@ int main(int argc, char **argv)
       }
       else
       {
-        std::cerr << "Error: invalid command" << std::endl;
+        fprintf(stderr, "Error: invalid command\n");
         continue;
       }
     }
@@ -85,18 +86,35 @@ int main(int argc, char **argv)
 
     if (!conn.send(send_message))
     {
-      std::cerr << "Error: " << "cannot send message." << std::endl;
+      fprintf(stderr, "Error: cannot send message.\n");
       return 6;
     }
 
     Message received_message;
-    conn.receive(received_message);
-    if (received_message.tag != TAG_OK)
-    {
-      std::cerr << "Error: " << received_message.data << std::endl;
-      return 7;
-    }
-  }
 
-  return 0;
-}
+    if (conn.receiver(received_message))
+    {
+      if (received_message.tag == TAG_ERR)
+      {
+        fprintf(stderr, "%s", received_message.c_str());
+      }
+      else if (received_message.tag != TAG_OK)
+      {
+        fprintf(stderr, "%s\n", "unexpected server response tag");
+      }
+    }
+    else
+    {
+      if (!new_connection.is_open())
+      {
+        fprintf(stderr, "cannot receive due to EOF or Error");
+        return 7;
+      }
+      else
+      {
+        fprintf(stderr, "cannot receive due to invalid format\n");
+      }
+    }
+
+    return 0;
+  }
