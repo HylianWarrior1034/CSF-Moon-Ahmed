@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   conn.receive(response_login);
   if (response_login.tag == TAG_ERR)
   {
-    std::cerr << response_login.data << std::endl;
+    std::cerr << response_login.data;
     return 3;
   }
   else if (response_login.tag != TAG_OK)
