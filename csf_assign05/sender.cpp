@@ -55,39 +55,39 @@ int main(int argc, char **argv) {
         msg.tag = TAG_JOIN;
         msg.data = ltrim(line);
         if (!conn.send(msg)) {
-          std::cerr << "Error: room join failed.";
+          std::cerr << "Error: " << msg.data << std::endl;
           return 6;
         }
 
         conn.receive(msg);
         if (msg.tag != TAG_OK) {
-          std::cerr << "Error: error registering sender to room.";
+          std::cerr << "Error: " << msg.data << std::endl;
           return 6;
         }
       } else if (command.compare("/leave") == 0) {
         msg.tag = TAG_LEAVE;
         msg.data = "";
         if (!conn.send(msg)) {
-          std::cerr << "Error: room leave failed.";
+          std::cerr << "Error: " << msg.data << std::endl;
           return 7;
         }
 
         conn.receive(msg);
         if (msg.tag != TAG_OK) {
-          std::cerr << "Error: error de-registering sender from room.";
+          std::cerr << "Error: " << msg.data << std::endl;
           return 7;
         }
       } else if (command.compare("/quit") == 0) {
         msg.tag = TAG_QUIT;
         msg.data = "";
         if (!conn.send(msg)) {
-          std::cerr << "Error: quit failed.";
+          std::cerr << "Error: " << msg.data << std::endl;
           return 8;
         }
 
         conn.receive(msg);
         if (msg.tag != TAG_OK) {
-          std::cerr << "Error: error destroying connection.";
+          std::cerr << "Error: " << msg.data << std::endl;
           return 8;
         }
         loop_exit_case = true;
@@ -98,12 +98,12 @@ int main(int argc, char **argv) {
       msg.tag = TAG_SENDALL;
       msg.data = line;
       if (!conn.send(msg)) {
-        std::cerr << "Error: room join failed.";
+        std::cerr << "Error: " << msg.data << std::endl;
         return 9;
       }
       conn.receive(msg);
       if (msg.tag != TAG_OK) {
-        std::cerr << "Error: error registering sender to room.";
+        std::cerr << "Error: " << msg.data << std::endl;
         return 9;
       }
     }

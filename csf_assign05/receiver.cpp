@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
   if (!conn.send(msg))
   {
-    std::cerr << "Error: Could not send messge.\n";
+    std::cerr << "Error: " << msg.data << std::endl;
     return 2;
   }
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
   if (msg.tag != TAG_OK)
   {
-    std::cerr << "Error: server denied receiver login.\n";
+    std::cerr << "Error: " << msg.data << std::endl;
     return 3;
   }
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 
   if (!conn.send(msg))
   {
-    std::cerr << "Error: Could not send messge.\n";
+    std::cerr << "Error: " << msg.data << std::endl;
     return 2;
   }
 
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 
   if (msg.tag != TAG_OK)
   {
-    std::cerr << "Error: server denied receiver login.\n";
+    std::cerr << "Error: " << msg.data << std::endl;
     return 3;
   }
 
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
       getline(ss, msg_text, ':');
       std::cout << sender << ": " << msg_text << std::endl;
     } else {
-      std::cerr << "Error: Delivery not received.";
+      std::cerr << "Error: " << msg.data << std::endl;
       return 4;
     }
   }
