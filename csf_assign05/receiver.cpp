@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
   if (response_login.tag == TAG_ERR)
   {
-    fprint(stderr, "Error: %s", response_login.data.c_str());
+    fprintf(stderr, "Error: %s", response_login.data.c_str());
     return 3;
   }
   else if (response_login.tag != TAG_OK)
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
   if (response_join.tag == TAG_ERR)
   {
-    fprint(stderr, "Error: %s", response_join.data.c_str());
+    fprintf(stderr, "Error: %s", response_join.data.c_str());
     return 3;
   }
   else if (response_join.tag != TAG_OK)

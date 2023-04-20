@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   conn.receive(response_login);
   if (response_login.tag == TAG_ERR)
   {
-    fprint(stderr, "Error: %s", response_login.data.c_str());
+    fprintf(stderr, "Error: %s", response_login.data.c_str());
     return 3;
   }
   else if (response_login.tag != TAG_OK)
@@ -92,11 +92,11 @@ int main(int argc, char **argv)
 
     Message received_message;
 
-    if (conn.receiver(received_message))
+    if (conn.receive(received_message))
     {
       if (received_message.tag == TAG_ERR)
       {
-        fprintf(stderr, "%s", received_message.c_str());
+        fprintf(stderr, "%s", received_message.data.c_str());
       }
       else if (received_message.tag != TAG_OK)
       {
@@ -105,7 +105,7 @@ int main(int argc, char **argv)
     }
     else
     {
-      if (!new_connection.is_open())
+      if (!conn.is_open())
       {
         fprintf(stderr, "cannot receive due to EOF or Error");
         return 7;
@@ -118,3 +118,4 @@ int main(int argc, char **argv)
 
     return 0;
   }
+}
