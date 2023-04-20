@@ -74,9 +74,9 @@ int main(int argc, char **argv)
     if (msg.tag == TAG_DELIVERY)
     {
       std::stringstream ss(msg.data);
-      getline(ss, room, ' ');
-      getline(ss, sender, ' ');
-      getline(ss, msg_text, ' ');
+      getline(ss, room, ':');
+      getline(ss, sender, ':');
+      getline(ss, msg_text, ':');
       std::cout << sender << ": " << msg_text << std::endl;
     } else {
       std::cerr << "Error: Delivery not received.";
