@@ -6,6 +6,12 @@
 #include <pthread.h>
 class Room;
 
+struct ConnInfo
+{
+  int clientfd;
+  struct Connection client_connection;
+};
+
 class Server {
 public:
   Server(int port);
