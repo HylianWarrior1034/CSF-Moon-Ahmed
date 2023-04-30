@@ -38,8 +38,7 @@ void chat_with_sender(Connection *sender_conn, User *sender, Server *server) {
       reply.tag = TAG_OK;
       reply.data = "Joined room!";
     } else if (sender_msg.tag == TAG_SENDALL) {
-      Message *broadcast = &Message(TAG_DELIVERY, sender_msg.data);
-      sender->mqueue.enqueue(broadcast);
+      room->broadcast_message(sender->username, sender_msg.data);
       // figure out how to send message
       reply.tag = TAG_OK;
       reply.data = "Message sent!";
@@ -60,26 +59,31 @@ void chat_with_sender(Connection *sender_conn, User *sender, Server *server) {
 }
 
 void chat_with_receiver(Connection *receiver_conn, User *receiver, Server *server) {
-  Room *room;
+  Room *room = nullptr;
+
+  Message receiver_msg;
+  receiver_conn->receive(receiver_msg);
+
+  Message reply;
+  if (receiver_msg.tag == TAG_JOIN) {
+    room = server->find_or_create_room(receiver_msg.data);
+    room->add_member(receiver);
+    reply.tag = TAG_OK;
+    reply.data = "Joined room!";
+    receiver_conn->send(reply);
+  } else {
+    // error
+  }
+
   while(1)
   {
-    Message receiver_msg;
-    receiver_conn->receive(receiver_msg);
-
-    Message reply;
-    if (receiver_msg.tag == TAG_JOIN) {
-      room = server->find_or_create_room(receiver_msg.data);
-      room->add_member(receiver);
-      reply.tag = TAG_OK;
-      reply.data = "Joined room!";
-    } else {
-      // error
+    Message *broadcast = receiver->mqueue.dequeue();
+    if (broadcast != nullptr) {
+      receiver_conn->send(*broadcast);
     }
-
-    // figure out how to send message from senders in the same room
+    
     // figure out how to determine when the receiver has closed their programs and close the data structures accordingly (has something to do with SIGPIPE signal)
 
-    receiver_conn->send(reply);
   }
 }
 
