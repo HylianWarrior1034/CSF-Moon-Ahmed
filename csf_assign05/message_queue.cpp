@@ -2,22 +2,33 @@
 #include <ctime>
 #include "message_queue.h"
 
-MessageQueue::MessageQueue() {
+MessageQueue::MessageQueue()
+{
   // TODO: initialize the mutex and the semaphore
+  pthread_mutex_init(&m_lock, NULL);
+  sem_init(&m_avail)
 }
 
-MessageQueue::~MessageQueue() {
+MessageQueue::~MessageQueue()
+{
   // TODO: destroy the mutex and the semaphore
+  pthread_mutex_destroy(&m_lock);
+  sem_destroy(&m_avail)
 }
 
-void MessageQueue::enqueue(Message *msg) {
+void MessageQueue::enqueue(Message *msg)
+{
   // TODO: put the specified message on the queue
+  Guard(&m_lock);
+  m_messages.push_back(msg);
+  sem_post();
 
   // be sure to notify any thread waiting for a message to be
   // available by calling sem_post
 }
 
-Message *MessageQueue::dequeue() {
+Message *MessageQueue::dequeue()
+{
   struct timespec ts;
 
   // get the current time using clock_gettime:
@@ -31,8 +42,26 @@ Message *MessageQueue::dequeue() {
 
   // TODO: call sem_timedwait to wait up to 1 second for a message
   //       to be available, return nullptr if no message is available
+  while ((s = sem_timedwait(&m_avail, &ts)) == -1 && errno == EINTR)
+  {
+    continue;
+  }
 
-  // TODO: remove the next message from the queue, return it
-  Message *msg = nullptr;
-  return msg;
+  // sem_timedwait() timed out
+  if (s == -1)
+  {
+    Message *msg = nullptr;
+    return msg;
+  }
+  else
+  {
+    if (m_messages.empty())
+    {
+      Message *msg = nullptr;
+      return msg;
+    }
+    // TODO: remove the next message from the queue, return it
+    Message *msg = m_messages.pop_front();
+    return msg;
+  }
 }
