@@ -8,8 +8,8 @@ class Room;
 
 struct ConnInfo
 {
-  int clientfd;
-  struct Connection client_connection;
+  struct Connection *client_connection;
+  Server *server;
 };
 
 class Server {
@@ -20,6 +20,8 @@ public:
   bool listen();
 
   void handle_client_requests();
+  void chat_with_sender(Connection *sender_conn, User *sender);
+  void chat_with_receiver(Connection *receiver_conn, User *receiver);
 
   Room *find_or_create_room(const std::string &room_name);
 

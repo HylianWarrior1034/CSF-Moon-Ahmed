@@ -20,82 +20,68 @@
 // TODO: add any additional data types that might be helpful
 //       for implementing the Server member functions
 
-void server_chat_with_client(int clientfd, const char *webroot) {
-	struct Message *req = NULL;
-	rio_t in;
-
-	rio_readinitb(&in, clientfd);
-
-	req = message_read_request(&in);
-	printf("got request for resource %s\n", req->resource);
-	if (req) {
-		server_generate_response(clientfd, req, webroot);
-		message_destroy(req);
-	}
-}
-
-void server_generate_response(int clientfd, struct Message *req, const char *webroot) {
-	char *filename = NULL;
-
-	/* only GET requests are supported */
-	if (strcmp(req->method, "GET") != 0) {
-		server_generate_text_response(clientfd, "403", "Forbidden",
-			"only GET requests are allowed");
-		goto response_done;
-	}
-
-	/*
-	 * for now, assume all requests are for files
-	 * in the webroot
-	 */
-	filename = concat(webroot, req->resource);
-	struct stat s;
-	if (stat(filename, &s) < 0) {
-		server_generate_text_response(clientfd, "404", "Not Found",
-			"requested resource does not exist");
-		goto response_done;
-	}
-
-	/* write response line */
-	writestr(clientfd, "HTTP/1.1 200 OK\r\n");
-
-	/* write Content-Type and Content-Length headers */
-	const char *content_type = server_determine_content_type(filename);
-	if (content_type) {
-		writestr(clientfd, "Content-Type: ");
-		writestr(clientfd, content_type);
-		writestr(clientfd, "\r\n");
-	}
-	writestr(clientfd, "Content-Length: ");
-	writelong(clientfd, (long) s.st_size);
-	writestr(clientfd, "\r\n");
-
-	writestr(clientfd, "\r\n");
-
-	/* send file data */
-	int fd = Open(filename, O_RDONLY, 0);
-	copyto(fd, clientfd);
-	close(fd);
-
-response_done:
-	free(filename);
-}
-
-void server_generate_text_response(int clientfd, const char *response_code,
-	const char *reason, const char *msg) {
-	writestr(clientfd, "HTTP/1.1 ");
-	writestr(clientfd, response_code);
-	writestr(clientfd, " ");
-	writestr(clientfd, reason);
-	writestr(clientfd, "\r\n");
-	/* could generate headers... */
-	writestr(clientfd, "\r\n");
-	writestr(clientfd, msg);
-}
-
 ////////////////////////////////////////////////////////////////////////
 // Client thread functions
 ////////////////////////////////////////////////////////////////////////
+
+void chat_with_sender(Connection *sender_conn, User *sender, Server *server) {
+  Room *room;
+  while(1)
+  {
+    Message sender_msg;
+    sender_conn->receive(sender_msg);
+
+    Message reply;
+    if (sender_msg.tag == TAG_JOIN) {
+      room = server->find_or_create_room(sender_msg.data);
+      room->add_member(sender);
+      reply.tag = TAG_OK;
+      reply.data = "Joined room!";
+    } else if (sender_msg.tag == TAG_SENDALL) {
+      Message *broadcast = &Message(TAG_DELIVERY, sender_msg.data);
+      sender->mqueue.enqueue(broadcast);
+      // figure out how to send message
+      reply.tag = TAG_OK;
+      reply.data = "Message sent!";
+    } else if (sender_msg.tag == TAG_LEAVE) {
+      room->remove_member(sender);
+      reply.tag = TAG_OK;
+      reply.data = "Left room!";
+    } else if (sender_msg.tag == TAG_QUIT) {
+      reply.tag = TAG_OK;
+      reply.data = "Good bye!";
+    } else {
+      // error
+    }
+
+    sender_conn->send(reply);
+
+  }
+}
+
+void chat_with_receiver(Connection *receiver_conn, User *receiver, Server *server) {
+  Room *room;
+  while(1)
+  {
+    Message receiver_msg;
+    receiver_conn->receive(receiver_msg);
+
+    Message reply;
+    if (receiver_msg.tag == TAG_JOIN) {
+      room = server->find_or_create_room(receiver_msg.data);
+      room->add_member(receiver);
+      reply.tag = TAG_OK;
+      reply.data = "Joined room!";
+    } else {
+      // error
+    }
+
+    // figure out how to send message from senders in the same room
+    // figure out how to determine when the receiver has closed their programs and close the data structures accordingly (has something to do with SIGPIPE signal)
+
+    receiver_conn->send(reply);
+  }
+}
 
 namespace {
 
@@ -114,7 +100,25 @@ void *worker(void *arg) {
   //       separate helper functions for each of these possibilities
   //       is a good idea)
 
-  struct Connection *client_conenction = (Connection *) arg;
+  ConnInfo *info = (ConnInfo *) arg;
+  struct Connection *client_connection = info->client_connection;
+  Server *server = info->server;
+
+  Message init_msg;
+  client_connection->receive(init_msg);
+  
+  User *new_user = &User(init_msg.data);
+  Message login_confirmation(TAG_OK, "Logged in!");
+
+  if (init_msg.tag == TAG_RLOGIN) {
+    client_connection->send(login_confirmation);
+    chat_with_receiver(client_connection, new_user, server);
+  } else if (init_msg.tag == TAG_SLOGIN) {
+    client_connection->send(login_confirmation);
+    chat_with_sender(client_connection, new_user, server);
+  } else {
+    // error
+  }
 
   return nullptr;
 }
@@ -168,12 +172,15 @@ void Server::handle_client_requests() {
       exit(2);
     }
 
-    struct Connection client_connection(clientfd);
+    struct Connection *client_connection = &Connection(clientfd);
+    ConnInfo *info;
+    info->client_connection = client_connection;
+    info->server = this;
 
     pthread_t thread_id;
-    if (pthread_create(&thread_id, NULL, worker, &client_connection) != 0)
+    if (pthread_create(&thread_id, NULL, worker, info) != 0)
     {
-
+      // error
     }
 
     // finish while loop later after i figure out room functionality
@@ -184,4 +191,16 @@ void Server::handle_client_requests() {
 Room *Server::find_or_create_room(const std::string &room_name) {
   // TODO: return a pointer to the unique Room object representing
   //       the named chat room, creating a new one if necessary
+  auto map_iter = m_rooms.find(room_name);
+  Room *target_room;
+  if (map_iter != m_rooms.end())
+  {
+    target_room = map_iter->second();
+  } else {
+    *target_room = Room(room_name);
+    m_rooms.insert(std::pair<std::string, Room *>(room_name, target_room));
+    target_room = (m_rooms.find(room_name))->second();
+  }
+
+  return target_room;
 }
