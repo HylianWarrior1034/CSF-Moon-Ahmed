@@ -33,7 +33,8 @@ void Room::remove_member(User *user)
   {
     Guard guard(lock);
     members.erase(user);
-    user->user_name = ROOM_NAME_NULL;
+    // user has no room now
+    user->room_name = "";
   }
 }
 

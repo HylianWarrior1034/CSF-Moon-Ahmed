@@ -4,13 +4,15 @@
 #include <string>
 #include "message_queue.h"
 
-struct User {
+struct User
+{
   std::string username;
+  std::string room_name;
 
   // queue of pending messages awaiting delivery
   MessageQueue mqueue;
 
-  User(const std::string &username) : username(username) { }
+  User(const std::string &username) : username(username), room_name("") {}
 };
 
 #endif // USER_H
