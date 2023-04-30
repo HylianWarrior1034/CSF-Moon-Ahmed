@@ -200,13 +200,13 @@ void Server::handle_client_requests()
 
     struct ConnInfo *info = (ConnInfo *)malloc(sizeof(struct ConnInfo));
     info->clientfd = clientfd;
-    info->client_connection = client_connection;
+    info->client_connection = new Connection(clientfd);
     info->server = this;
 
     pthread_t thread_id;
     if (pthread_create(&thread_id, NULL, worker, info) != 0)
     {
-      // error
+      std::cerr << "Error: Cannot create pthread for client" << std::endl;
     }
 
     // finish while loop later after i figure out room functionality

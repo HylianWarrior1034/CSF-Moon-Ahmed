@@ -8,11 +8,13 @@ class Room;
 
 struct ConnInfo
 {
+  int clientfd;
   struct Connection *client_connection;
   Server *server;
 };
 
-class Server {
+class Server
+{
 public:
   Server(int port);
   ~Server();
