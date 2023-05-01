@@ -24,8 +24,8 @@ public:
   bool listen();
 
   void handle_client_requests();
-  void chat_with_sender(Connection *sender_conn, User *sender);
-  void chat_with_receiver(Connection *receiver_conn, User *receiver);
+  void chat_with_sender(Connection *sender_conn, Message *client_msg);
+  void chat_with_receiver(Connection *receiver_conn, Message *client_msg);
 
   Room *find_or_create_room(const std::string &room_name);
 
