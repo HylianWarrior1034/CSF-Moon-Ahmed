@@ -22,8 +22,8 @@ MessageQueue::~MessageQueue()
     }
   }
 
-  pthread_mutex_destroy(&m_lock);
   sem_destroy(&m_avail);
+  pthread_mutex_destroy(&m_lock);
 }
 
 void MessageQueue::enqueue(Message *msg)
