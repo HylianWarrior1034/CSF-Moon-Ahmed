@@ -26,8 +26,9 @@
 
 void chat_with_sender(Connection *sender_conn, User *sender, Server *server)
 {
-  Room *room;
-  while (1)
+  Room *room = nullptr;
+  bool exit_case = false;
+  while (sender_conn->is_open() && !exit_case)
   {
     Message sender_msg;
     sender_conn->receive(sender_msg);
@@ -42,28 +43,44 @@ void chat_with_sender(Connection *sender_conn, User *sender, Server *server)
     }
     else if (sender_msg.tag == TAG_SENDALL)
     {
-      room->broadcast_message(sender->username, sender_msg.data);
-      // figure out how to send message
-      reply.tag = TAG_OK;
-      reply.data = "Message sent!";
+      if (room == nullptr) {
+        reply.tag = TAG_ERR;
+        reply.data = "Must join room before sending message.";
+      } else {
+        room->broadcast_message(sender->username, sender_msg.data);
+        reply.tag = TAG_OK;
+        reply.data = "Message sent!";
+      }
     }
     else if (sender_msg.tag == TAG_LEAVE)
     {
-      room->remove_member(sender);
-      reply.tag = TAG_OK;
-      reply.data = "Left room!";
+      if (room == nullptr) {
+        reply.tag = TAG_ERR;
+        reply.data = "You can't leave a room if you're not in one, ya dingas.";
+      } else {
+        room->remove_member(sender);
+        reply.tag = TAG_OK;
+        reply.data = "Left room!";
+      }
     }
     else if (sender_msg.tag == TAG_QUIT)
     {
+      if (room != nullptr) {
+        room->remove_member(sender);
+      }
       reply.tag = TAG_OK;
       reply.data = "Good bye!";
+      exit_case = true;
     }
     else
     {
-      // error
+      reply.tag = TAG_ERR;
+      reply.data = "Invalid message.";
     }
 
-    sender_conn->send(reply);
+    if (!sender_conn->send(reply)) {
+      exit_case = true; // break out of loop if sending the message fails
+    }
   }
 }
 
@@ -80,24 +97,28 @@ void chat_with_receiver(Connection *receiver_conn, User *receiver, Server *serve
     room = server->find_or_create_room(receiver_msg.data);
     room->add_member(receiver);
     reply.tag = TAG_OK;
-    reply.data = "Joined room!";
+    reply.data = "Joined room, welcome to the party!";
     receiver_conn->send(reply);
   }
   else
   {
-    // error
+    reply.tag = TAG_OK;
+    reply.data = "You must join a room immediately!";
+    receiver_conn->send(reply);
+    return;
   }
 
-  while (1)
+  bool exit_case = false;
+  while (receiver_conn->is_open() && !exit_case)
   {
     Message *broadcast = receiver->mqueue.dequeue();
-    if (broadcast != nullptr)
-    {
-      receiver_conn->send(*broadcast);
+    if (broadcast != nullptr && !receiver_conn->send(*broadcast)) {
+      exit_case = true;
     }
-
-    // figure out how to determine when the receiver has closed their programs and close the data structures accordingly (has something to do with SIGPIPE signal)
+    delete broadcast;
   }
+
+  room->remove_member(receiver);
 }
 
 namespace
@@ -119,7 +140,7 @@ namespace
     //       separate helper functions for each of these possibilities
     //       is a good idea)
 
-    ConnInfo *info = (ConnInfo *)arg;
+    ConnInfo *info = (ConnInfo *) arg;
     struct Connection *client_connection = info->client_connection;
     Server *server = info->server;
 
@@ -127,7 +148,7 @@ namespace
     client_connection->receive(init_msg);
 
     User *new_user = &User(init_msg.data);
-    Message login_confirmation(TAG_OK, "Logged in!");
+    Message login_confirmation(TAG_OK, "Logged in as " + init_msg.data +"!");
 
     if (init_msg.tag == TAG_RLOGIN)
     {
@@ -141,9 +162,12 @@ namespace
     }
     else
     {
-      // error
+      Message* server_response = new Message(TAG_ERR, "First message must be a login request.");
+	    client_connection->send(*server_response);
     }
 
+    close(info->clientfd);
+    free(info);
     return nullptr;
   }
 
@@ -208,8 +232,6 @@ void Server::handle_client_requests()
     {
       std::cerr << "Error: Cannot create pthread for client" << std::endl;
     }
-
-    // finish while loop later after i figure out room functionality
   }
 }
 
@@ -224,7 +246,7 @@ Room *Server::find_or_create_room(const std::string &room_name)
   // existing room is found
   if (map_iter != m_rooms.end())
   {
-    target_room = map_iter->second();
+    target_room = map_iter->second;
     return target_room;
   }
 
@@ -232,5 +254,5 @@ Room *Server::find_or_create_room(const std::string &room_name)
   Room *new_room = new Room(room_name);
   m_rooms.insert({room_name, new_room});
 
-  return new_room
+  return new_room;
 }
