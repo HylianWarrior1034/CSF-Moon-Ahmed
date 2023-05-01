@@ -199,7 +199,6 @@ bool Server::listen()
   m_ssock = open_listenfd(port);
   if (m_ssock < 0)
   {
-    std::cerr << "Unable to open server socket." << std::endl;
     return false;
   }
 
@@ -210,11 +209,6 @@ void Server::handle_client_requests()
 {
   // TODO: infinite loop calling accept or Accept, starting a new
   //       pthread for each connected client
-  if (!listen())
-  {
-    exit(1);
-  }
-
   while (1)
   {
     int clientfd = Accept(m_ssock, NULL, NULL);
