@@ -29,14 +29,17 @@ int main(int argc, char **argv)
 
   // send a slogin message to server
   Message login_message(TAG_SLOGIN, username);
-  conn.send(login_message);
+  if (!conn.send(login_message)) {
+    std::cerr << "Unable to connect to server." << std::endl;
+    return 1;
+  }
 
   // retrieve response fro server
   Message response_login;
   conn.receive(response_login);
   if (response_login.tag == TAG_ERR)
   {
-    std::cerr << response_login.data;
+    std::cerr << response_login.data << std::endl;
     return 3;
   }
   else if (response_login.tag != TAG_OK)

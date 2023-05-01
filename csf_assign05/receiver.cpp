@@ -79,8 +79,7 @@ int main(int argc, char **argv)
   std::string room;
   std::string sender;
   std::string msg_text;
-
-  std::cout << "bruh finally" << std::endl;
+  
   while (1)
   {
     Message response;
@@ -106,7 +105,7 @@ int main(int argc, char **argv)
 
         if (room == room_name) // parse the message and see if message room matches receiver room
         {
-          std::cout << sender << ": " << msg_text;
+          std::cout << sender << ": " << msg_text << std::endl;
         }
       }
       else

@@ -26,7 +26,7 @@
 
 void chat_with_sender(ConnInfo *info, Message *client_msg)
 {
-  User *user = new User(msg->data);
+  User *user = new User(client_msg->data.substr(0, client_msg->data.size() - 1));
   bool exit_case = false;
   Message *server_msg = new Message();
   while (info->client_connection->is_open() && !exit_case)
@@ -36,14 +36,14 @@ void chat_with_sender(ConnInfo *info, Message *client_msg)
 
       if (client_msg->tag == TAG_JOIN) // handle join
       {
-        info->server->find_or_create_room(client_msg->data);
-        user->room_name = client_msg->data;
+        info->server->find_or_create_room(client_msg->data.substr(0, client_msg->data.size() - 1));
+        user->room_name = client_msg->data.substr(0, client_msg->data.size() - 1);
         server_msg->tag = TAG_OK;
         server_msg->data = "Joined room!";
       }
-      else if (sender_msg.tag == TAG_SENDALL)
+      else if (client_msg->tag == TAG_SENDALL)
       {
-        if (user->room == "")
+        if (user->room_name == "")
         {
           server_msg->tag = TAG_ERR;
           server_msg->data = "Must join room before sending message.";
@@ -51,12 +51,12 @@ void chat_with_sender(ConnInfo *info, Message *client_msg)
         else
         {
           Room *room = info->server->find_or_create_room(user->room_name);
-          room->broadcast_message(user->username, client_msg->data);
+          room->broadcast_message(user->username, client_msg->data.substr(0, client_msg->data.size() - 1));
           server_msg->tag = TAG_OK;
           server_msg->data = "Message sent!";
         }
       }
-      else if (sender_msg.tag == TAG_LEAVE)
+      else if (client_msg->tag == TAG_LEAVE)
       {
         if (user->room_name == "")
         {
@@ -70,7 +70,7 @@ void chat_with_sender(ConnInfo *info, Message *client_msg)
           server_msg->data = "Left room!";
         }
       }
-      else if (sender_msg.tag == TAG_QUIT)
+      else if (client_msg->tag == TAG_QUIT)
       {
         user->room_name = "";
         server_msg->tag = TAG_OK;
@@ -95,24 +95,24 @@ void chat_with_receiver(ConnInfo *info, Message *client_msg)
 {
   Room *room = nullptr;
 
-  User *user = new User(username);
+  User *user = new User(client_msg->data.substr(0, client_msg->data.size() - 1));
 
   Message *server_msg = new Message();
 
   if (!(info->client_connection->receive(*client_msg) && client_msg->tag == TAG_JOIN && client_msg->data != ""))
   {
 
-    reply->tag = TAG_ERR;
-    reply->data = "You must join a room immediately!";
-    info->client_connection->send(*reply);
+    server_msg->tag = TAG_ERR;
+    server_msg->data = "You must join a room immediately!";
+    info->client_connection->send(*server_msg);
     return;
   }
 
-  room = info->server->find_or_create_room(client_msg->data);
+  room = info->server->find_or_create_room(client_msg->data.substr(0, client_msg->data.size() - 1));
   room->add_member(user);
   server_msg->tag = TAG_OK;
-  server_msg->data = "Joined room, welcome to the party!";
-  info->client_connection->send(*reply);
+  server_msg->data = "Joined room welcome to the party";
+  info->client_connection->send(*server_msg);
 
   while (1)
   {
@@ -134,7 +134,7 @@ void chat_with_receiver(ConnInfo *info, Message *client_msg)
     delete broadcast;
   }
 
-  room->remove_member(receiver);
+  room->remove_member(user);
 }
 
 namespace
@@ -162,8 +162,8 @@ namespace
 
     if (info->client_connection->receive(*init_msg))
     {
-
-      Message login_confirmation(TAG_OK, "Logged in as " + init_msg->data + "!");
+      std::string name = init_msg->data.substr(0, init_msg->data.size() - 1);
+      Message login_confirmation(TAG_OK, "Logged in as " + name);
 
       if (init_msg->tag == TAG_RLOGIN)
       {
@@ -184,7 +184,7 @@ namespace
     else
     {
       Message *server_msg = new Message(TAG_ERR, "Server did not receive anything from client.");
-      info->client_connection->send(server_msg);
+      info->client_connection->send(*server_msg);
     }
 
     close(info->clientfd);
