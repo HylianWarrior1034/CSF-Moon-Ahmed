@@ -1,6 +1,7 @@
 #include <cassert>
 #include <ctime>
 #include "message_queue.h"
+#include "guard.h"
 
 MessageQueue::MessageQueue()
 {
@@ -22,7 +23,7 @@ MessageQueue::~MessageQueue()
   }
 
   pthread_mutex_destroy(&m_lock);
-  sem_destroy(&m_avail)
+  sem_destroy(&m_avail);
 }
 
 void MessageQueue::enqueue(Message *msg)

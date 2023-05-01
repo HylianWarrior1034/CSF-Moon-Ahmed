@@ -4,7 +4,9 @@
 #include <map>
 #include <string>
 #include <pthread.h>
+#include "user.h"
 class Room;
+class Server;
 
 struct ConnInfo
 {

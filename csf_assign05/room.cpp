@@ -47,7 +47,7 @@ void Room::broadcast_message(const std::string &sender_username, const std::stri
     std::set<User *>::iterator it;
     for (auto it = members.begin(); it != members.end(); ++it)
     {
-      Message *broadcast = &Message(TAG_DELIVERY, message);
+      Message *broadcast = new Message(TAG_DELIVERY, message);
       (*it)->mqueue.enqueue(broadcast);
     }
   }

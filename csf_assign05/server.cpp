@@ -147,7 +147,7 @@ namespace
     Message init_msg;
     client_connection->receive(init_msg);
 
-    User *new_user = &User(init_msg.data);
+    User *new_user = new User(init_msg.data);
     Message login_confirmation(TAG_OK, "Logged in as " + init_msg.data +"!");
 
     if (init_msg.tag == TAG_RLOGIN)
