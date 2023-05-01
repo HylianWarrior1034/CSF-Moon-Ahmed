@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -24,23 +25,16 @@ int main(int argc, char **argv)
   Connection conn;
 
   conn.connect(server_hostname, server_port); // connect to server
-  if (!conn.is_open()) {
-    std::cerr << "" << std::endl;
-    return 2;
-  }
 
   Message msg(TAG_RLOGIN, username);
   conn.send(msg); // send receiver logged in
 
   Message response_login;
-  if (!conn.receive(response_login)) { // receive server message
-    std::cerr << "No response from server." << std::endl;
-    return 2;
-  }
+  conn.receive(response_login); // receive server message
 
   if (response_login.tag == TAG_ERR) // if received message tag was err
   {
-    std::cerr << response_login.data << std::endl; // print error message and leave
+    std::cerr << response_login.data; // print error message and leave
     return 3;
   }
   else if (response_login.tag != TAG_OK) // if tag was anything other than ok,
@@ -57,15 +51,11 @@ int main(int argc, char **argv)
   conn.send(msg); // send room name to server
 
   Message response_join;
+  conn.receive(response_join);
 
-  if (!conn.receive(response_join)) {
-    std::cerr << "No response from server." << std::endl;
-    return 2;
-  }
-  
   if (response_join.tag == TAG_ERR) // same error handling as above
   {
-    std::cerr << response_join.data << std::endl;
+    std::cerr << response_join.data;
     return 3;
   }
   else if (response_join.tag != TAG_OK)
@@ -79,7 +69,7 @@ int main(int argc, char **argv)
   std::string room;
   std::string sender;
   std::string msg_text;
-  
+
   while (1)
   {
     Message response;
@@ -105,7 +95,7 @@ int main(int argc, char **argv)
 
         if (room == room_name) // parse the message and see if message room matches receiver room
         {
-          std::cout << sender << ": " << msg_text << std::endl;
+          std::cout << sender << ": " << msg_text;
         }
       }
       else

@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -29,17 +30,14 @@ int main(int argc, char **argv)
 
   // send a slogin message to server
   Message login_message(TAG_SLOGIN, username);
-  if (!conn.send(login_message)) {
-    std::cerr << "Unable to connect to server." << std::endl;
-    return 1;
-  }
+  conn.send(login_message);
 
   // retrieve response fro server
   Message response_login;
   conn.receive(response_login);
   if (response_login.tag == TAG_ERR)
   {
-    std::cerr << response_login.data << std::endl;
+    std::cerr << response_login.data;
     return 3;
   }
   else if (response_login.tag != TAG_OK)
@@ -106,11 +104,11 @@ int main(int argc, char **argv)
     {
       if (received_message.tag == TAG_ERR)
       {
-        std::cerr << received_message.data << std::endl;
+        std::cerr << received_message.data;
       }
       else if (received_message.tag != TAG_OK)
       {
-        std::cerr << "unexpected server response tag" << std::endl;
+        std::cerr << "unexpected server response tag";
         return 7;
       }
     }
@@ -118,12 +116,12 @@ int main(int argc, char **argv)
     {
       if (!conn.is_open())
       {
-        std::cerr << "could not receive due to EOF or Error" << std::endl;
+        std::cerr << "could not receive due to EOF or Error";
         return 8;
       }
       else
       {
-        std::cerr << "could not receive due to invalid format" << std::endl;
+        std::cerr << "could not receive due to invalid format";
       }
     }
   }
