@@ -44,7 +44,6 @@ void Room::broadcast_message(const std::string &sender_username, const std::stri
     Guard guard(lock);
     // TODO: send a message to every (receiver) User in the room
     std::string message = room_name + ":" + sender_username + ":" + message_text;
-    std::set<User *>::iterator it;
     for (auto it = members.begin(); it != members.end(); ++it)
     {
       Message *broadcast = new Message(TAG_DELIVERY, message);

@@ -61,6 +61,8 @@ Message *MessageQueue::dequeue()
     return nullptr;
   }
 
+  Message *msg;
+
   {
     Guard guard(m_lock);
     // TODO: remove the next message from the queue, return it
