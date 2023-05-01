@@ -24,9 +24,8 @@
 // Client thread functions
 ////////////////////////////////////////////////////////////////////////
 
-void chat_with_sender(ConnInfo *info, Message *client_msg)
+void chat_with_sender(ConnInfo *info, Message *client_msg, User *user)
 {
-  User *user = new User(client_msg->data);
   bool exit_case = false;
   Message *server_msg = new Message();
   while (info->client_connection->is_open() && !exit_case)
@@ -36,13 +35,17 @@ void chat_with_sender(ConnInfo *info, Message *client_msg)
 
       if (client_msg->tag == TAG_JOIN) // handle join
       {
-        info->server->find_or_create_room(client_msg->data);
-        user->room_name = client_msg->data;
+        std::string room_name = client_msg->data;
+        room_name = room_name.substr(0, room_name.size() - 1);
+        info->server->find_or_create_room(room_name);
+        user->room_name = room_name;
         server_msg->tag = TAG_OK;
         server_msg->data = "Joined room!";
       }
       else if (client_msg->tag == TAG_SENDALL)
       {
+        std::string broadcast = client_msg->data;
+        broadcast = broadcast.substr(0, broadcast.size() - 1);
         if (user->room_name == "")
         {
           server_msg->tag = TAG_ERR;
@@ -51,7 +54,7 @@ void chat_with_sender(ConnInfo *info, Message *client_msg)
         else
         {
           Room *room = info->server->find_or_create_room(user->room_name);
-          room->broadcast_message(user->username, client_msg->data);
+          room->broadcast_message(user->username, broadcast);
           server_msg->tag = TAG_OK;
           server_msg->data = "Message sent!";
         }
@@ -91,11 +94,10 @@ void chat_with_sender(ConnInfo *info, Message *client_msg)
   }
 }
 
-void chat_with_receiver(ConnInfo *info, Message *client_msg)
+void chat_with_receiver(ConnInfo *info, Message *client_msg, User *user)
 {
   Room *room = nullptr;
 
-  User *user = new User(client_msg->data);
 
   Message *server_msg = new Message();
 
@@ -108,8 +110,11 @@ void chat_with_receiver(ConnInfo *info, Message *client_msg)
     return;
   }
 
-  room = info->server->find_or_create_room(client_msg->data);
+  std::string room_name = client_msg->data;
+  room_name = room_name.substr(0, room_name.size() - 1);
+  room = info->server->find_or_create_room(room_name);
   room->add_member(user);
+  user->room_name = room_name;
   server_msg->tag = TAG_OK;
   server_msg->data = "Joined room welcome to the party";
   info->client_connection->send(*server_msg);
@@ -162,18 +167,19 @@ namespace
 
     if (info->client_connection->receive(*init_msg))
     {
-      std::string name = init_msg->data;
+      std::string name = init_msg->data.substr(0, init_msg->data.size() - 1);
+      User *new_user = new User(name);
       Message login_confirmation(TAG_OK, "Logged in as " + name);
 
       if (init_msg->tag == TAG_RLOGIN)
       {
         info->client_connection->send(login_confirmation);
-        chat_with_receiver(info, init_msg);
+        chat_with_receiver(info, init_msg, new_user);
       }
       else if (init_msg->tag == TAG_SLOGIN)
       {
         info->client_connection->send(login_confirmation);
-        chat_with_sender(info, init_msg);
+        chat_with_sender(info, init_msg, new_user);
       }
       else
       {
