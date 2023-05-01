@@ -5,14 +5,14 @@
 
 MessageQueue::MessageQueue()
 {
-  // TODO: initialize the mutex and the semaphore
+  // initialize the mutex and the semaphore
   pthread_mutex_init(&m_lock, NULL);
   sem_init(&m_avail, 0, 0);
 }
 
 MessageQueue::~MessageQueue()
 {
-  // TODO: destroy the mutex and the semaphore
+  // put a guard for destroying the messages inside m_messages
   {
     Guard guard(m_lock);
     std::deque<Message *>::iterator msg_iterator;
@@ -22,6 +22,7 @@ MessageQueue::~MessageQueue()
     }
   }
 
+  // destroy the mutex and the semaphore
   sem_destroy(&m_avail);
   pthread_mutex_destroy(&m_lock);
 }
@@ -30,14 +31,14 @@ void MessageQueue::enqueue(Message *msg)
 {
   // curly brackets important because it defines scope of guard
   {
-    // TODO: put the specified message on the queue
+    // put the specified message on the queue
     Guard guard(m_lock);
     m_messages.push_back(msg);
   }
 
-  sem_post(&m_avail);
   // be sure to notify any thread waiting for a message to be
   // available by calling sem_post
+  sem_post(&m_avail);
 }
 
 Message *MessageQueue::dequeue()
@@ -61,8 +62,10 @@ Message *MessageQueue::dequeue()
     return nullptr;
   }
 
+  // message to return
   Message *msg;
 
+  // when popping from the queue, we need a guard
   {
     Guard guard(m_lock);
     // TODO: remove the next message from the queue, return it
