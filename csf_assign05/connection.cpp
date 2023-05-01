@@ -95,7 +95,7 @@ bool Connection::receive(Message &msg)
   {
     std::string message(buf);
     int index = message.find(":"); // parse the message
-    msg.data = message.substr(index + 1); // after colon is message
+    msg.data = message.substr(index + 1, message.size() - index - 2); // after colon is message
     msg.tag = message.substr(0, index); // before colon is tag
     if (msg.tag != TAG_ERR && msg.tag != TAG_OK && msg.tag != TAG_SLOGIN && msg.tag != TAG_RLOGIN && msg.tag != TAG_JOIN && msg.tag != TAG_LEAVE &&
         msg.tag != TAG_SENDALL && msg.tag != TAG_SENDUSER && msg.tag != TAG_QUIT && msg.tag != TAG_DELIVERY && msg.tag != TAG_EMPTY)

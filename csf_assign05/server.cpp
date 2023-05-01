@@ -26,7 +26,7 @@
 
 void chat_with_sender(ConnInfo *info, Message *client_msg)
 {
-  User *user = new User(client_msg->data.substr(0, client_msg->data.size() - 1));
+  User *user = new User(client_msg->data);
   bool exit_case = false;
   Message *server_msg = new Message();
   while (info->client_connection->is_open() && !exit_case)
@@ -36,8 +36,8 @@ void chat_with_sender(ConnInfo *info, Message *client_msg)
 
       if (client_msg->tag == TAG_JOIN) // handle join
       {
-        info->server->find_or_create_room(client_msg->data.substr(0, client_msg->data.size() - 1));
-        user->room_name = client_msg->data.substr(0, client_msg->data.size() - 1);
+        info->server->find_or_create_room(client_msg->data);
+        user->room_name = client_msg->data;
         server_msg->tag = TAG_OK;
         server_msg->data = "Joined room!";
       }
@@ -51,7 +51,7 @@ void chat_with_sender(ConnInfo *info, Message *client_msg)
         else
         {
           Room *room = info->server->find_or_create_room(user->room_name);
-          room->broadcast_message(user->username, client_msg->data.substr(0, client_msg->data.size() - 1));
+          room->broadcast_message(user->username, client_msg->data);
           server_msg->tag = TAG_OK;
           server_msg->data = "Message sent!";
         }
@@ -95,7 +95,7 @@ void chat_with_receiver(ConnInfo *info, Message *client_msg)
 {
   Room *room = nullptr;
 
-  User *user = new User(client_msg->data.substr(0, client_msg->data.size() - 1));
+  User *user = new User(client_msg->data);
 
   Message *server_msg = new Message();
 
@@ -108,7 +108,7 @@ void chat_with_receiver(ConnInfo *info, Message *client_msg)
     return;
   }
 
-  room = info->server->find_or_create_room(client_msg->data.substr(0, client_msg->data.size() - 1));
+  room = info->server->find_or_create_room(client_msg->data);
   room->add_member(user);
   server_msg->tag = TAG_OK;
   server_msg->data = "Joined room welcome to the party";
@@ -162,7 +162,7 @@ namespace
 
     if (info->client_connection->receive(*init_msg))
     {
-      std::string name = init_msg->data.substr(0, init_msg->data.size() - 1);
+      std::string name = init_msg->data;
       Message login_confirmation(TAG_OK, "Logged in as " + name);
 
       if (init_msg->tag == TAG_RLOGIN)
