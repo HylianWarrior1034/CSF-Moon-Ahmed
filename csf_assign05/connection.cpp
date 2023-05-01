@@ -65,8 +65,7 @@ bool Connection::send(const Message &msg)
   // make sure that m_last_result is set appropriately
 
   // make sure msg is formatted properly
-  std::string message = msg.tag + ":" + msg.data;
-  std::cout << message << std::endl;
+  std::string message = msg.tag + ":" + msg.data + "\n";
   size_t length = message.length();
   ssize_t result = rio_writen(m_fd, message.c_str(), length);
   if (result != (ssize_t)length)

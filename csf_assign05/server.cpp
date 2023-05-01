@@ -24,43 +24,43 @@
 // Client thread functions
 ////////////////////////////////////////////////////////////////////////
 
-void chat_with_sender(Connection *sender_conn, User *sender, Server *server)
+void chat_with_sender(ConnInfo *info, User *sender)
 {
   Room *room = nullptr;
   bool exit_case = false;
-  while (sender_conn->is_open() && !exit_case)
+  while (info->client_connection->is_open() && !exit_case)
   {
     Message sender_msg;
-    sender_conn->receive(sender_msg);
+    info->client_connection->receive(sender_msg);
 
-    Message reply;
+    Message *reply = new Message();
     if (sender_msg.tag == TAG_JOIN)
     {
-      room = server->find_or_create_room(sender_msg.data);
+      room = info->server->find_or_create_room(sender_msg.data);
       room->add_member(sender);
-      reply.tag = TAG_OK;
-      reply.data = "Joined room!";
+      reply->tag = TAG_OK;
+      reply->data = "Joined room!";
     }
     else if (sender_msg.tag == TAG_SENDALL)
     {
       if (room == nullptr) {
-        reply.tag = TAG_ERR;
-        reply.data = "Must join room before sending message.";
+        reply->tag = TAG_ERR;
+        reply->data = "Must join room before sending message.";
       } else {
         room->broadcast_message(sender->username, sender_msg.data);
-        reply.tag = TAG_OK;
-        reply.data = "Message sent!";
+        reply->tag = TAG_OK;
+        reply->data = "Message sent!";
       }
     }
     else if (sender_msg.tag == TAG_LEAVE)
     {
       if (room == nullptr) {
-        reply.tag = TAG_ERR;
-        reply.data = "You can't leave a room if you're not in one, ya dingas.";
+        reply->tag = TAG_ERR;
+        reply->data = "You can't leave a room if you're not in one, ya dingas.";
       } else {
         room->remove_member(sender);
-        reply.tag = TAG_OK;
-        reply.data = "Left room!";
+        reply->tag = TAG_OK;
+        reply->data = "Left room!";
       }
     }
     else if (sender_msg.tag == TAG_QUIT)
@@ -68,50 +68,50 @@ void chat_with_sender(Connection *sender_conn, User *sender, Server *server)
       if (room != nullptr) {
         room->remove_member(sender);
       }
-      reply.tag = TAG_OK;
-      reply.data = "Good bye!";
+      reply->tag = TAG_OK;
+      reply->data = "Good bye!";
       exit_case = true;
     }
     else
     {
-      reply.tag = TAG_ERR;
-      reply.data = "Invalid message.";
+      reply->tag = TAG_ERR;
+      reply->data = "Invalid message.";
     }
 
-    if (!sender_conn->send(reply)) {
+    if (!info->client_connection->send(*reply)) {
       exit_case = true; // break out of loop if sending the message fails
     }
   }
 }
 
-void chat_with_receiver(Connection *receiver_conn, User *receiver, Server *server)
+void chat_with_receiver(ConnInfo *info, User *receiver)
 {
   Room *room = nullptr;
 
   Message receiver_msg;
 
-  Message reply;
-  if (receiver_conn->receive(receiver_msg) && receiver_msg.tag == TAG_JOIN && receiver_msg.data != "")
+  Message *reply = new Message();
+  if (info->client_connection->receive(receiver_msg) && receiver_msg.tag == TAG_JOIN && receiver_msg.data != "")
   {
-    room = server->find_or_create_room(receiver_msg.data);
+    room = info->server->find_or_create_room(receiver_msg.data);
     room->add_member(receiver);
-    reply.tag = TAG_OK;
-    reply.data = "Joined room, welcome to the party!";
-    receiver_conn->send(reply);
+    reply->tag = TAG_OK;
+    reply->data = "Joined room, welcome to the party!";
+    info->client_connection->send(*reply);
   }
   else
   {
-    reply.tag = TAG_ERR;
-    reply.data = "You must join a room immediately!";
-    receiver_conn->send(reply);
+    reply->tag = TAG_ERR;
+    reply->data = "You must join a room immediately!";
+    info->client_connection->send(*reply);
     return;
   }
 
   bool exit_case = false;
-  while (receiver_conn->is_open() && !exit_case)
+  while (info->client_connection->is_open() && !exit_case)
   {
     Message *broadcast = receiver->mqueue.dequeue();
-    if (broadcast != nullptr && !receiver_conn->send(*broadcast)) {
+    if (broadcast != nullptr && !info->client_connection->send(*broadcast)) {
       exit_case = true;
     }
     delete broadcast;
@@ -140,33 +140,31 @@ namespace
     //       is a good idea)
 
     ConnInfo *info = (ConnInfo *) arg;
-    struct Connection *client_connection = info->client_connection;
-    Server *server = info->server;
 
-    Message init_msg;
+    Message *init_msg = new Message();
 
-    if (client_connection->receive(init_msg)) {
-      User *new_user = new User(init_msg.data);
-      Message login_confirmation(TAG_OK, "Logged in as " + init_msg.data +"!");
+    if (info->client_connection->receive(*init_msg)) {
+      User *new_user = new User(init_msg->data);
+      Message login_confirmation(TAG_OK, "Logged in as " + init_msg->data +"!");
 
-      if (init_msg.tag == TAG_RLOGIN)
+      if (init_msg->tag == TAG_RLOGIN)
       {
-        client_connection->send(login_confirmation);
-        chat_with_receiver(client_connection, new_user, server);
+        info->client_connection->send(login_confirmation);
+        chat_with_receiver(info, new_user);
       }
-      else if (init_msg.tag == TAG_SLOGIN)
+      else if (init_msg->tag == TAG_SLOGIN)
       {
-        client_connection->send(login_confirmation);
-        chat_with_sender(client_connection, new_user, server);
+        info->client_connection->send(login_confirmation);
+        chat_with_sender(info, new_user);
       }
       else
       {
         Message* server_response = new Message(TAG_ERR, "First message must be a login request.");
-        client_connection->send(*server_response);
+        info->client_connection->send(*server_response);
       }
     } else {
       Message login_error(TAG_ERR, "Did not receive login request.");
-      client_connection->send(login_error);
+      info->client_connection->send(login_error);
     }
 
     close(info->clientfd);

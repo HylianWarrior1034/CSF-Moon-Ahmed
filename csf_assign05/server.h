@@ -11,7 +11,7 @@ class Server;
 struct ConnInfo
 {
   int clientfd;
-  struct Connection *client_connection;
+  Connection *client_connection;
   Server *server;
 };
 
