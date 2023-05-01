@@ -194,14 +194,15 @@ bool Server::listen()
 {
   // TODO: use open_listenfd to create the server socket, return true
   //       if successful, false if not
-  int serverfd = open_listenfd((char *)m_port);
-  if (serverfd < 0)
+  std::string port_str = std::to_string(m_port);
+  const char *port = port_str.c_str();
+  m_ssock = open_listenfd(port);
+  if (m_ssock < 0)
   {
     std::cerr << "Unable to open server socket." << std::endl;
     return false;
   }
 
-  m_ssock = serverfd;
   return true;
 }
 
