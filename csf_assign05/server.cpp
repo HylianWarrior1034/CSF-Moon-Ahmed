@@ -89,10 +89,9 @@ void chat_with_receiver(Connection *receiver_conn, User *receiver, Server *serve
   Room *room = nullptr;
 
   Message receiver_msg;
-  receiver_conn->receive(receiver_msg);
 
   Message reply;
-  if (receiver_msg.tag == TAG_JOIN)
+  if (receiver_conn->receive(receiver_msg) && receiver_msg.tag == TAG_JOIN && receiver_msg.data != "")
   {
     room = server->find_or_create_room(receiver_msg.data);
     room->add_member(receiver);
@@ -102,7 +101,7 @@ void chat_with_receiver(Connection *receiver_conn, User *receiver, Server *serve
   }
   else
   {
-    reply.tag = TAG_OK;
+    reply.tag = TAG_ERR;
     reply.data = "You must join a room immediately!";
     receiver_conn->send(reply);
     return;
@@ -145,25 +144,29 @@ namespace
     Server *server = info->server;
 
     Message init_msg;
-    client_connection->receive(init_msg);
 
-    User *new_user = new User(init_msg.data);
-    Message login_confirmation(TAG_OK, "Logged in as " + init_msg.data +"!");
+    if (client_connection->receive(init_msg)) {
+      User *new_user = new User(init_msg.data);
+      Message login_confirmation(TAG_OK, "Logged in as " + init_msg.data +"!");
 
-    if (init_msg.tag == TAG_RLOGIN)
-    {
-      client_connection->send(login_confirmation);
-      chat_with_receiver(client_connection, new_user, server);
-    }
-    else if (init_msg.tag == TAG_SLOGIN)
-    {
-      client_connection->send(login_confirmation);
-      chat_with_sender(client_connection, new_user, server);
-    }
-    else
-    {
-      Message* server_response = new Message(TAG_ERR, "First message must be a login request.");
-	    client_connection->send(*server_response);
+      if (init_msg.tag == TAG_RLOGIN)
+      {
+        client_connection->send(login_confirmation);
+        chat_with_receiver(client_connection, new_user, server);
+      }
+      else if (init_msg.tag == TAG_SLOGIN)
+      {
+        client_connection->send(login_confirmation);
+        chat_with_sender(client_connection, new_user, server);
+      }
+      else
+      {
+        Message* server_response = new Message(TAG_ERR, "First message must be a login request.");
+        client_connection->send(*server_response);
+      }
+    } else {
+      Message login_error(TAG_ERR, "Did not receive login request.");
+      client_connection->send(login_error);
     }
 
     close(info->clientfd);

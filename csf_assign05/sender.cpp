@@ -103,11 +103,11 @@ int main(int argc, char **argv)
     {
       if (received_message.tag == TAG_ERR)
       {
-        std::cerr << received_message.data;
+        std::cerr << received_message.data << std::endl;
       }
       else if (received_message.tag != TAG_OK)
       {
-        std::cerr << "unexpected server response tag";
+        std::cerr << "unexpected server response tag" << std::endl;
         return 7;
       }
     }
@@ -115,12 +115,12 @@ int main(int argc, char **argv)
     {
       if (!conn.is_open())
       {
-        std::cerr << "could not receive due to EOF or Error";
+        std::cerr << "could not receive due to EOF or Error" << std::endl;
         return 8;
       }
       else
       {
-        std::cerr << "could not receive due to invalid format";
+        std::cerr << "could not receive due to invalid format" << std::endl;
       }
     }
   }
